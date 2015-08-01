@@ -1,0 +1,29 @@
+{
+  "name": "eru",
+  "version": "0.0.0",
+  "description": "Administration panel for Runnable.io",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeNow/eru.git"
+  },
+  "author": "Bryan Kendall <bryan@runnable.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CodeNow/eru/issues"
+  },
+  "homepage": "https://github.com/CodeNow/eru#readme",
+  "dependencies": {
+    "express": "^4.13.2",
+    "express-session": "^1.11.3",
+    "passport": "^0.2.2",
+    "passport-github": "^0.1.5"
+  },
+  "devDependencies": {
+    "express-session": "^1.11.3"
+  }
+}

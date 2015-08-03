@@ -30,6 +30,7 @@ passport.use(new GitHubStrategy({
     'forrestj',
     'bkendall',
     'sundippatel',
+    'tjmehta',
     'prafulrana',
     'paulrduffy'
   ];

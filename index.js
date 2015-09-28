@@ -27,6 +27,7 @@ passport.use(new GitHubStrategy({
   callbackURL: 'https://' + domain + '/auth/github/callback'
 }, function (accessToken, refreshProfile, profile, done) {
   var validUsers = [
+    'anandkumarpatel',
     'forrestj',
     'bkendall',
     'sundippatel',

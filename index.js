@@ -7,7 +7,7 @@ var session = require('express-session');
 
 // other modules
 var domain = process.env.ADMIN_DOMAIN;
-var apiHost = process.env.API_HOST;
+var apiURL = process.env.API_URL;
 var runnableHost = process.env.RUNNABLE_HOST;
 var fs = require('fs');
 var path = require('path');
@@ -73,7 +73,7 @@ app.get('/', function (req, res, next) {
 app.get('/panel', function (req, res) {
   var filename = path.join(__dirname, 'public', 'panel', 'index.html');
   var data = fs.readFileSync(filename, { encoding: 'utf-8' });
-  data = data.replace(/{{ API_HOST }}/g, apiHost);
+  data = data.replace(/{{ API_URL }}/g, apiURL);
   data = data.replace(/{{ RUNNABLE_HOST }}/g, runnableHost);
   res.end(data);
 });

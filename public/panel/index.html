@@ -6,13 +6,13 @@
 <h1>Eru</h1>
 
 <h2>Moderate</h2>
-<form action="https://{{ API_HOST }}/actions/moderate?redirect=https://{{ RUNNABLE_HOST }}" method="post">
+<form action="{{ API_URL }}/actions/moderate?redirect=https://{{ RUNNABLE_HOST }}" method="post">
 <input type="text" name="username" placeholder="username">
 <input type="submit" value="Moderate">
 </form>
 
 <h2>Demoderate</h2>
-<form action="https://{{ API_HOST }}/actions/demoderate?redirect=https://{{ RUNNABLE_HOST }}" method="post">
+<form action="{{ API_URL }}/actions/demoderate?redirect=https://{{ RUNNABLE_HOST }}" method="post">
 <input type="submit" value="Stop Moderating">
 </form>
 

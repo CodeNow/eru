@@ -2,3 +2,4 @@ node_modules
 npm-debug.log
 schema.graphql
 schema.json
+test/fixtures/user-data.js

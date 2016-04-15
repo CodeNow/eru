@@ -46,6 +46,7 @@
     "babel-register": "^6.7.2",
     "babel-relay-plugin": "^0.7.3",
     "bluebird": "^3.3.4",
+    "body-parser": "^1.15.0",
     "connect-redis": "^3.0.2",
     "express": "^4.13.2",
     "express-graphql": "^0.4.10",

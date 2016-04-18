@@ -7,8 +7,8 @@
     "build": "npm run build:schema",
     "build:schema": "babel-node ./scripts/update-schema.js",
     "dev-server": "NODE_ENV=development babel-node ./lib/dev-server.js",
-    "start:app-server": "babel-node ./lib/app-server.js",
-    "start:graphql-server": "babel-node ./lib/graphql-server.js",
+    "start:app-server": "babel-node ./index-app.js",
+    "start:graphql-server": "babel-node ./index-graphql.js",
     "test": "standard --verbose"
   },
   "repository": {

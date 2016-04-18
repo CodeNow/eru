@@ -4,8 +4,9 @@
   "description": "Administration panel for Runnable.io",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build:schema",
+    "build": "npm run build:schema && npm run build:webpack",
     "build:schema": "babel-node ./scripts/update-schema.js",
+    "build:webpack": "babel-node ./scripts/build-webpack.js",
     "dev-server": "NODE_ENV=development babel-node ./lib/dev-server.js",
     "start:app-server": "babel-node ./index-app.js",
     "start:graphql-server": "babel-node ./index-graphql.js",

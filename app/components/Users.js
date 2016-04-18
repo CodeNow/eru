@@ -31,6 +31,7 @@ class Users extends React.Component {
       {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-CSRF-TOKEN': tokenString
         },
         credentials: 'include',

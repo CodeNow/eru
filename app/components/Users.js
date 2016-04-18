@@ -25,10 +25,14 @@ class Users extends React.Component {
     const username = this.state.username.trim()
     const user = find(users, (u) => (u.githubUsername === username))
     const accessToken = user.githubAccessToken
+    const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
     window.fetch(
       `https://api.${domain}/auth/github/token`,
       {
         method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': tokenString
+        },
         credentials: 'include',
         body: JSON.stringify({ accessToken })
       }

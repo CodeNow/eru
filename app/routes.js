@@ -10,7 +10,7 @@ import Welcome from './components/Welcome'
 
 export default (
   <Route
-    path='/'
+    path='/app'
     component={ Eru }
     queries={ EruHomeQuery }
   >
@@ -18,17 +18,17 @@ export default (
       component={ Welcome }
     />
     <Route
-      path='/docks'
+      path='/app/docks'
       component={ Docks }
       queries={ EruHomeQuery }
     />
     <Route
-      path='/services'
+      path='/app/services'
       component={ Services }
       queries={ EruHomeQuery }
     />
     <Route
-      path='/users'
+      path='/app/users'
       component={ Users }
       queries={ EruHomeQuery }
     />

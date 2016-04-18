@@ -52,16 +52,16 @@ class Eru extends React.Component {
         <nav className='navbar navbar-inverse navbar-fixed-top'>
           <div className='container'>
             <div className='navbar-header'>
-              <Link to='/' className='navbar-brand'>Eru</Link>
+              <Link to='/app' className='navbar-brand'>Eru</Link>
             </div>
             <ul className='nav navbar-nav'>
-              <NavLink to='/docks'>
+              <NavLink to='/app/docks'>
                 Docks <span className='badge'>{ numDocks }</span>
               </NavLink>
-              <NavLink to='/services'>
+              <NavLink to='/app/services'>
                 Services <span className='badge'>{ numServices }</span>
               </NavLink>
-              <NavLink to='/users'>
+              <NavLink to='/app/users'>
                 Users <span className='badge'>{ numUsers }</span>
               </NavLink>
             </ul>

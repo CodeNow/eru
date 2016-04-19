@@ -29,7 +29,7 @@ class NavLink extends Link {
     return (
       <li {...props}>
         <a onClick={this.handleClick}>
-          { this.props.children }
+          {this.props.children}
         </a>
       </li>
     )
@@ -56,19 +56,19 @@ class Eru extends React.Component {
             </div>
             <ul className='nav navbar-nav'>
               <NavLink to='/app/docks'>
-                Docks <span className='badge'>{ numDocks }</span>
+                Docks <span className='badge'>{numDocks}</span>
               </NavLink>
               <NavLink to='/app/services'>
-                Services <span className='badge'>{ numServices }</span>
+                Services <span className='badge'>{numServices}</span>
               </NavLink>
               <NavLink to='/app/users'>
-                Users <span className='badge'>{ numUsers }</span>
+                Users <span className='badge'>{numUsers}</span>
               </NavLink>
             </ul>
           </div>
         </nav>
         <div className='container'>
-          { this.props.children }
+          {this.props.children}
         </div>
       </div>
     )

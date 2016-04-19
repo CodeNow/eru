@@ -11,26 +11,26 @@ import Welcome from './components/Welcome'
 export default (
   <Route
     path='/app'
-    component={ Eru }
-    queries={ EruHomeQuery }
+    component={Eru}
+    queries={EruHomeQuery}
   >
     <IndexRoute
-      component={ Welcome }
+      component={Welcome}
     />
     <Route
       path='/app/docks'
-      component={ Docks }
-      queries={ EruHomeQuery }
+      component={Docks}
+      queries={EruHomeQuery}
     />
     <Route
       path='/app/services'
-      component={ Services }
-      queries={ EruHomeQuery }
+      component={Services}
+      queries={EruHomeQuery}
     />
     <Route
       path='/app/users'
-      component={ Users }
-      queries={ EruHomeQuery }
+      component={Users}
+      queries={EruHomeQuery}
     />
   </Route>
 )

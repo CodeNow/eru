@@ -8,6 +8,7 @@
     "build:schema": "babel-node ./scripts/update-schema.js",
     "build:webpack": "babel-node ./scripts/build-webpack.js",
     "dev-server": "NODE_ENV=development babel-node ./lib/dev-server.js",
+    "lint": "standard --verbose",
     "start:app-server": "babel-node ./index-app.js",
     "start:graphql-server": "babel-node ./index-graphql.js",
     "test": "standard --verbose"

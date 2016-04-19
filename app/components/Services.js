@@ -24,10 +24,10 @@ class Services extends React.Component {
             <tbody>
               {
                 services.map((s) => (
-                  <tr key={ s.id }>
-                    <th scope='row'>{ fromGlobalId(s.id).id }</th>
-                    <td>{ s.name }</td>
-                    <td>{ s.version || 'n/a' }</td>
+                  <tr key={s.id}>
+                    <th scope='row'>{fromGlobalId(s.id).id}</th>
+                    <td>{s.name}</td>
+                    <td>{s.version || 'n/a'}</td>
                   </tr>
                 ))
               }

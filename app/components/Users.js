@@ -70,10 +70,10 @@ class Users extends React.Component {
                 {
                   users.map((u) => (
                     <option
-                      key={ u.id }
-                      value={ u.githubUsername }
+                      key={u.id}
+                      value={u.githubUsername}
                     >
-                      { u.githubUsername }
+                      {u.githubUsername}
                     </option>
                   ))
                 }

@@ -26,11 +26,11 @@ class Docks extends React.Component {
             <tbody>
               {
                 docks.map((d) => (
-                  <tr key={ d.id }>
-                    <th scope='row'>{ d.instanceId }</th>
-                    <td>{ d.org }</td>
-                    <td>{ d.ami }</td>
-                    <td>{ d.privateIP }</td>
+                  <tr key={d.id}>
+                    <th scope='row'>{d.instanceId}</th>
+                    <td>{d.org}</td>
+                    <td>{d.ami}</td>
+                    <td>{d.privateIP}</td>
                   </tr>
                 ))
               }

@@ -7,8 +7,8 @@ import routes from './routes'
 
 render(
   <RelayRouter
-    history={ browserHistory }
-    routes={ routes }
+    history={browserHistory}
+    routes={routes}
   />,
   document.getElementById('root')
 )

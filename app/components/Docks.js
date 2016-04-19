@@ -9,8 +9,6 @@ class Docks extends React.Component {
   }
 
   render () {
-    console.log('!!', this.props)
-    console.log('??', this.state)
     const { docks } = this.props.runnable
     return (
       <div className='row'>

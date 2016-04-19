@@ -40,7 +40,7 @@ class Users extends React.Component {
     )
       .then((res) => {
         if (res.status === 200) {
-          window.redirect(`https://${domain}/`)
+          window.location.assign(`https://${domain}/`)
         } else {
           throw new Error('Authentication Failed.')
         }

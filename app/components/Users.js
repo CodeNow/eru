@@ -78,6 +78,10 @@ class Users extends React.Component {
             with the avaiable users we have in our database (source of
             authentication).
           </p>
+          <p>
+            tl;dr: whitelisted organizations who have an instance can be
+            moderated.
+          </p>
           <form onSubmit={this.handleSubmit.bind(this)}>
             <div className='form-group'>
               <label htmlFor='organization'>Organization</label>

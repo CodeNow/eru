@@ -7,17 +7,15 @@ class Users extends React.Component {
     runnable: React.PropTypes.object
   }
 
-  handleChange (e) {
+  handleUserChange (e) {
     e.preventDefault()
     this.setState({ username: e.target.value })
   }
 
   handleSubmit (e) {
     e.preventDefault()
-    const {
-      domain,
-      users
-    } = this.props.runnable
+    const { domain } = this.props.runnable
+    const users = this.props.runnable.users.edges.map((u) => (u.node))
     if (!this.state || !this.state.username) {
       console.warn('No username was selected.')
       return
@@ -50,21 +48,50 @@ class Users extends React.Component {
       })
   }
 
+  handleOrgSelect (e) {
+    this.props.relay.setVariables({
+      orgID: parseInt(e.target.value, 10),
+      userPageSize: 1000000
+    })
+  }
+
   render () {
-    const {
-      users
-    } = this.props.runnable
+    const orgs = this.props.runnable.orgs.edges.map((e) => (e.node))
+    const users = this.props.runnable.users
+      ? this.props.runnable.users.edges.map((u) => (u.node))
+      : []
     return (
       <div className='row'>
         <div className='col-md-4'>
           <h4>User Moderation</h4>
           <form onSubmit={this.handleSubmit.bind(this)}>
             <div className='form-group'>
+              <label htmlFor='organization'>Organization</label>
+              <select
+                id='organization'
+                className='form-control'
+                onChange={this.handleOrgSelect.bind(this)}
+              >
+                <option></option>
+                {
+                  orgs.map((o) => (
+                    <option
+                      key={o.id}
+                      value={o.githubID}
+                    >
+                      {o.githubName}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            <div className='form-group'>
               <label htmlFor='username'>User</label>
               <select
                 id='username'
                 className='form-control'
-                onChange={this.handleChange.bind(this)}
+                disabled={!users.length}
+                onChange={this.handleUserChange.bind(this)}
               >
                 <option></option>
                 {
@@ -92,14 +119,32 @@ class Users extends React.Component {
 export default Relay.createContainer(
   Users,
   {
+    initialVariables: {
+      pageSize: 1000000,
+      userPageSize: 0,
+      orgID: null
+    },
     fragments: {
       runnable: () => Relay.QL`
         fragment on Runnable {
           domain
-          users {
-            id
-            githubUsername
-            githubAccessToken
+          orgs(first: $pageSize) {
+            edges {
+              node {
+                id
+                githubID
+                githubName
+              }
+            }
+          }
+          users(first: $userPageSize, orgID: $orgID) {
+            edges {
+              node {
+                id
+                githubAccessToken
+                githubUsername
+              }
+            }
           }
         }
       `

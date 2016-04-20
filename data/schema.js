@@ -9,14 +9,18 @@ import {
 import {
   fromGlobalId,
   globalIdField,
-  nodeDefinitions
+  nodeDefinitions,
+  connectionArgs,
+  connectionFromPromisedArray,
+  connectionDefinitions
 } from 'graphql-relay'
 import find from '101/find'
 import hasProps from '101/has-properties'
 
 import AWS from './aws'
 import Runnable from './runnable'
-Runnable.connect()
+
+import userData from '../test/fixtures/user-data'
 
 const { nodeInterface, nodeField } = nodeDefinitions(
   (globalId) => {
@@ -26,10 +30,13 @@ const { nodeInterface, nodeField } = nodeDefinitions(
       const s = find(FAKE_SERVICES, hasProps({ id: parseInt(id, 10) }))
       return s
     } else if (type === 'Runnable') {
-      return {}
+      return { queryUser: userData }
     } else if (type === 'User') {
       return Runnable.getUsers(id)
+    } else if (type === 'Organization') {
+      return Runnable.getWhitelistedOrg(id)
     }
+    console.error('[type] node def failed', type, id)
     return null
   },
   (obj) => {
@@ -38,11 +45,14 @@ const { nodeInterface, nodeField } = nodeDefinitions(
       return serviceType
     } else if (obj.instanceId) {
       return dockType
-    } else if (Object.keys(obj).length === 0) {
+    } else if (obj.queryUser) {
       return runnableType
-    } else if (obj._id) {
+    } else if (obj._id && obj.accounts) {
       return userType
+    } else if (obj._id && obj.allowed && obj.lowerName) {
+      return orgType
     }
+    console.error('[type] failed to get the type', JSON.stringify(obj))
     return null
   }
 )
@@ -53,6 +63,38 @@ const FAKE_SERVICES = [
   { id: 3, name: 'api', version: 'v6.34.0' },
   { id: 4, name: 'api-worker', version: 'v6.34.0' }
 ]
+
+const orgType = new GraphQLObjectType({
+  name: 'Organization',
+  description: 'Organizations in Runnable.',
+  fields: () => ({
+    id: globalIdField('Organization'),
+    mongoID: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (o) => (o._id)
+    },
+    githubID: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (o) => (o.id)
+    },
+    githubName: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (o) => (o.lowerName)
+    },
+    users: {
+      type: userConnection,
+      description: 'Users who are in Runnable and belong to this organization.',
+      args: connectionArgs,
+      resolve: (o, args) => {
+        return connectionFromPromisedArray(
+          Runnable.getKnownUsersForOrg(o.id),
+          args
+        )
+      }
+    }
+  }),
+  interfaces: [ nodeInterface ]
+})
 
 const userType = new GraphQLObjectType({
   name: 'User',
@@ -121,11 +163,19 @@ const serviceType = new GraphQLObjectType({
   interfaces: [ nodeInterface ]
 })
 
+const {
+  connectionType: orgConnection
+} = connectionDefinitions({ nodeType: orgType })
+
+const {
+  connectionType: userConnection
+} = connectionDefinitions({ nodeType: userType })
+
 const runnableType = new GraphQLObjectType({
   name: 'Runnable',
   description: 'The Runnable ecosystem.',
   fields: () => ({
-    id: globalIdField('Runnable'),
+    id: globalIdField('Runnable', (r) => (r.queryUser.id)),
     services: {
       type: new GraphQLList(serviceType),
       resolve: () => (FAKE_SERVICES)
@@ -134,9 +184,36 @@ const runnableType = new GraphQLObjectType({
       type: new GraphQLList(dockType),
       resolve: () => (AWS.listDocks())
     },
+    orgs: {
+      type: orgConnection,
+      description: 'Organizations of the Runnable ecosystem.',
+      args: connectionArgs,
+      resolve: ({ queryUser }, args) => {
+        return connectionFromPromisedArray(
+          Runnable.getWhitelistedOrgs(queryUser),
+          args
+        )
+      }
+    },
     users: {
-      type: new GraphQLList(userType),
-      resolve: () => (Runnable.getUsers())
+      type: userConnection,
+      description: 'Users of the Runnable ecosystem.',
+      args: {
+        orgID: {
+          type: GraphQLInt,
+          description: 'Github Organization ID.'
+        },
+        ...connectionArgs
+      },
+      resolve: (_, args) => {
+        let users
+        if (args.orgID) {
+          users = Runnable.getKnownUsersForOrg(args.orgID)
+        } else {
+          users = Runnable.getUsers()
+        }
+        return connectionFromPromisedArray(users, args)
+      }
     },
     domain: {
       type: new GraphQLNonNull(GraphQLString),
@@ -151,7 +228,9 @@ const queryType = new GraphQLObjectType({
   fields: () => ({
     runnable: {
       type: runnableType,
-      resolve: () => ({})
+      resolve: ({ queryUser }) => {
+        return { queryUser }
+      }
     },
     node: nodeField
   })

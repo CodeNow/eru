@@ -46,7 +46,6 @@ class Eru extends React.Component {
   render () {
     const numDocks = this.props.runnable.docks.length
     const numServices = this.props.runnable.services.length
-    const numUsers = this.props.runnable.users.length
     return (
       <div>
         <nav className='navbar navbar-inverse navbar-fixed-top'>
@@ -62,7 +61,7 @@ class Eru extends React.Component {
                 Services <span className='badge'>{numServices}</span>
               </NavLink>
               <NavLink to='/app/users'>
-                Users <span className='badge'>{numUsers}</span>
+                Users <span></span>
               </NavLink>
             </ul>
           </div>
@@ -83,7 +82,6 @@ export default Relay.createContainer(
         fragment on Runnable {
           docks { id }
           services { id }
-          users { id }
         }
       `
     }

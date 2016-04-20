@@ -62,8 +62,22 @@ class Users extends React.Component {
       : []
     return (
       <div className='row'>
-        <div className='col-md-4'>
+        <div className='col-md-6'>
           <h4>User Moderation</h4>
+          <p>
+            These two lists are compiled using the following logic:
+          </p>
+          <p>
+            1. The organizations are pulled from the whitelist. This currently
+            includes organizations that are disabled.
+          </p>
+          <p>
+            2. Given the organization ID, the users are found by looking for
+            instances owned by the organization, getting the usernames
+            associated with the user who created it, and cross-referencing it
+            with the avaiable users we have in our database (source of
+            authentication).
+          </p>
           <form onSubmit={this.handleSubmit.bind(this)}>
             <div className='form-group'>
               <label htmlFor='organization'>Organization</label>

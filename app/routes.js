@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route, IndexRoute } from 'react-router'
 
-import Docks from './components/Docks'
+import AWS from './components/AWS'
 import Eru from './containers/Eru'
 import EruHomeQuery from './queries/EruHomeQuery'
 import Services from './components/Services'
@@ -18,8 +18,8 @@ export default (
       component={Welcome}
     />
     <Route
-      path='/app/docks'
-      component={Docks}
+      path='/app/aws'
+      component={AWS}
       queries={EruHomeQuery}
     />
     <Route

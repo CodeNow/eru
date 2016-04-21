@@ -6839,8 +6839,8 @@
       }
     },
     "github4": {
-      "version": "0.5.5",
-      "resolved": "https://registry.npmjs.org/github4/-/github4-0.5.5.tgz",
+      "version": "0.6.0",
+      "resolved": "https://registry.npmjs.org/github4/-/github4-0.6.0.tgz",
       "dependencies": {
         "follow-redirects": {
           "version": "0.0.7",

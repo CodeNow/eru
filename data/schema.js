@@ -10,6 +10,7 @@ import {
   fromGlobalId,
   globalIdField,
   nodeDefinitions,
+  mutationWithClientMutationId,
   connectionArgs,
   connectionFromPromisedArray,
   connectionDefinitions
@@ -148,6 +149,63 @@ const dockType = new GraphQLObjectType({
   })
 })
 
+const asgType = new GraphQLObjectType({
+  name: 'AutoScaleGroup',
+  description: 'AWS Auto Scale Group.',
+  fields: () => ({
+    id: globalIdField('AutoScaleGroup', (asg) => (asg.AutoScalingGroupName)),
+    name: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (asg) => (asg.AutoScalingGroupName)
+    },
+    launchConfiguration: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (asg) => (asg.LaunchConfigurationName)
+    },
+    minSize: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (asg) => (asg.MinSize)
+    },
+    maxSize: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (asg) => (asg.MaxSize)
+    },
+    desiredSize: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (asg) => (asg.DesiredCapacity)
+    },
+    created: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (asg) => (asg.CreatedTime)
+    },
+    organizationID: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (asg) => (parseInt(asg.org, 10))
+    },
+    organizationName: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (asg) => (asg.githubOrganization)
+    }
+  }),
+  interfaces: [ nodeInterface ]
+})
+
+const awsType = new GraphQLObjectType({
+  name: 'AWS',
+  description: 'AWS information for Runnable ecosystem.',
+  fields: () => ({
+    id: globalIdField('AWS'),
+    docks: {
+      type: new GraphQLList(dockType),
+      resolve: () => (AWS.listDocks())
+    },
+    asgs: {
+      type: new GraphQLList(asgType),
+      resolve: () => (AWS.listASGs())
+    }
+  })
+})
+
 const serviceType = new GraphQLObjectType({
   name: 'Service',
   description: 'Services in the Runnable ecosystem.',
@@ -180,9 +238,9 @@ const runnableType = new GraphQLObjectType({
       type: new GraphQLList(serviceType),
       resolve: () => (FAKE_SERVICES)
     },
-    docks: {
-      type: new GraphQLList(dockType),
-      resolve: () => (AWS.listDocks())
+    aws: {
+      type: new GraphQLNonNull(awsType),
+      resolve: () => ({})
     },
     orgs: {
       type: orgConnection,
@@ -219,8 +277,40 @@ const runnableType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLString),
       resolve: () => (Runnable.DOMAIN)
     }
-  }),
-  interfaces: [ nodeInterface ]
+  })
+})
+
+const ASGScale = mutationWithClientMutationId({
+  name: 'ASGScale',
+  inputFields: {
+    name: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    desiredSize: {
+      type: new GraphQLNonNull(GraphQLInt)
+    },
+    minSize: {
+      type: GraphQLInt
+    },
+    maxSize: {
+      type: GraphQLInt
+    }
+  },
+  outputFields: {
+    asg: {
+      type: asgType,
+      resolve: (payload) => {
+        return AWS.getASGByName(payload.asgName)
+      }
+    }
+  },
+  mutateAndGetPayload: ({ name, desiredSize, minSize, maxSize }) => {
+    return AWS.getASGByName(name)
+      .then((asg) => {
+        return AWS.updateASG(asg, { name, desiredSize, minSize, maxSize })
+      })
+      .return({ asgName: name })
+  }
 })
 
 const queryType = new GraphQLObjectType({
@@ -236,6 +326,14 @@ const queryType = new GraphQLObjectType({
   })
 })
 
+const mutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: () => ({
+    ASGScale
+  })
+})
+
 export const schema = new GraphQLSchema({
-  query: queryType
+  query: queryType,
+  mutation: mutationType
 })

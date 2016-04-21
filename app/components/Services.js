@@ -1,4 +1,3 @@
-import { fromGlobalId } from 'graphql-relay'
 import React from 'react'
 import Relay from 'react-relay'
 

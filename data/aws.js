@@ -73,7 +73,14 @@ class AWSClass {
             ...g
           }
         })
+        .catch(() => {
+          console.error(`looking for org ${g.org} and did not find it`)
+          return g
+        })
     })
+      .then((groups) => {
+        return groups.filter((g) => (g.githubOrganization))
+      })
   }
 
   static _filterAndFormatASGs (groups) {

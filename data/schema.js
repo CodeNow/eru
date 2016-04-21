@@ -21,8 +21,6 @@ import hasProps from '101/has-properties'
 import AWS from './aws'
 import Runnable from './runnable'
 
-import userData from '../test/fixtures/user-data'
-
 const { nodeInterface, nodeField } = nodeDefinitions(
   (globalId) => {
     const { type, id } = fromGlobalId(globalId)
@@ -31,7 +29,7 @@ const { nodeInterface, nodeField } = nodeDefinitions(
       const s = find(FAKE_SERVICES, hasProps({ id: parseInt(id, 10) }))
       return s
     } else if (type === 'Runnable') {
-      return { queryUser: userData }
+      return { queryUser: { id: id } }
     } else if (type === 'User') {
       return Runnable.getUsers(id)
     } else if (type === 'Organization') {
@@ -277,7 +275,8 @@ const runnableType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLString),
       resolve: () => (Runnable.DOMAIN)
     }
-  })
+  }),
+  interfaces: [ nodeInterface ]
 })
 
 const ASGScale = mutationWithClientMutationId({

@@ -44,8 +44,6 @@ class Eru extends React.Component {
   }
 
   render () {
-    // const numDocks = this.props.runnable.docks.length
-    // const numServices = this.props.runnable.services.length
     return (
       <div>
         <nav className='navbar navbar-inverse navbar-fixed-top'>

@@ -1,4 +1,3 @@
-import { fromGlobalId } from 'graphql-relay'
 import React from 'react'
 import Relay from 'react-relay'
 
@@ -16,7 +15,6 @@ class Services extends React.Component {
           <table className='table table-striped table-condensed'>
             <thead>
               <tr>
-                <th>id</th>
                 <th>Name</th>
                 <th>Version</th>
               </tr>
@@ -25,9 +23,8 @@ class Services extends React.Component {
               {
                 services.map((s) => (
                   <tr key={s.id}>
-                    <th scope='row'>{fromGlobalId(s.id).id}</th>
                     <td>{s.name}</td>
-                    <td>{s.version || 'n/a'}</td>
+                    <td>{s.version || 'unknown'}</td>
                   </tr>
                 ))
               }

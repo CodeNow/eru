@@ -16,18 +16,17 @@ import {
   connectionDefinitions
 } from 'graphql-relay'
 import find from '101/find'
-import hasProps from '101/has-properties'
 
 import AWS from './aws'
 import Runnable from './runnable'
+import Consul from './consul'
 
 const { nodeInterface, nodeField } = nodeDefinitions(
   (globalId) => {
     const { type, id } = fromGlobalId(globalId)
     console.warn('[type] node def', type, id)
     if (type === 'Service') {
-      const s = find(FAKE_SERVICES, hasProps({ id: parseInt(id, 10) }))
-      return s
+      return Consul.getService(id)
     } else if (type === 'Runnable') {
       return { queryUser: { id: id } }
     } else if (type === 'User') {
@@ -55,13 +54,6 @@ const { nodeInterface, nodeField } = nodeDefinitions(
     return null
   }
 )
-
-const FAKE_SERVICES = [
-  { id: 1, name: 'Redis' },
-  { id: 2, name: 'RabbitMQ' },
-  { id: 3, name: 'api', version: 'v6.34.0' },
-  { id: 4, name: 'api-worker', version: 'v6.34.0' }
-]
 
 const orgType = new GraphQLObjectType({
   name: 'Organization',
@@ -208,12 +200,13 @@ const serviceType = new GraphQLObjectType({
   name: 'Service',
   description: 'Services in the Runnable ecosystem.',
   fields: () => ({
-    id: globalIdField('Service'),
+    id: globalIdField('Service', (s) => (s.Key)),
     name: {
       type: new GraphQLNonNull(GraphQLString)
     },
     version: {
-      type: GraphQLString
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (s) => (s.Value)
     }
   }),
   interfaces: [ nodeInterface ]
@@ -234,7 +227,7 @@ const runnableType = new GraphQLObjectType({
     id: globalIdField('Runnable', (r) => (r.queryUser.id)),
     services: {
       type: new GraphQLList(serviceType),
-      resolve: () => (FAKE_SERVICES)
+      resolve: () => (Consul.getServices())
     },
     aws: {
       type: new GraphQLNonNull(awsType),

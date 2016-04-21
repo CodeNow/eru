@@ -51,7 +51,7 @@ class ASGRow extends React.Component {
             Smaller!
           </button>
           <button disabled className='btn btn-warning'>Disable!</button>
-          <button disabled className='btn btn-error'>Destroy!</button>
+          <button disabled className='btn btn-danger'>Destroy!</button>
         </td>
       </tr>
     )

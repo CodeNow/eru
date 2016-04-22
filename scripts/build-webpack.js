@@ -17,7 +17,20 @@ const compiler = webpack({
     ]
   },
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({ minimize: true })
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"production"'
+      }
+    }),
+    new webpack.optimize.UglifyJsPlugin({
+      sourceMap: false,
+      minimize: true,
+      mangle: true,
+      compress: {
+        dead_code: true,
+        warnings: false
+      }
+    })
   ],
   output: {
     filename: 'app.js',

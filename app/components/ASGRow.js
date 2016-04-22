@@ -2,6 +2,7 @@ import React from 'react'
 import Relay from 'react-relay'
 
 import ASGScaleMutation from '../mutations/ASGScale'
+import DisableModal from './DisableModal'
 
 class ASGRow extends React.Component {
   static propTypes = {
@@ -17,25 +18,42 @@ class ASGRow extends React.Component {
     )
   }
 
-  _increaseASG = (e) => {
+  _increaseASG = () => {
     this._changeASG(1)
   }
 
-  _decreaseASG = (e) => {
+  _decreaseASG = () => {
     this._changeASG(-1)
+  }
+
+  _disableASG = () => {
+    this._changeASG(-1 * this.props.asg.desiredSize)
+    this.setState({ open: false })
+  }
+
+  _openModal = () => {
+    this.setState({ open: true })
+  }
+
+  _closeModal = () => {
+    this.setState({ open: false })
   }
 
   render () {
     const { asg } = this.props
+    const totalStateCode = asg.instances.reduce((t, c) => (t + c.stateCode), 0)
+    let avgStateCode = totalStateCode / asg.instanceCount
+    const missingInstances = asg.desiredSize !== asg.instanceCount
+    const notAllRunning = asg.instanceCount > 0 && avgStateCode !== 16
+    const className = notAllRunning || missingInstances ? 'info' : ''
     return (
-      <tr>
+      <tr className={className}>
         <th scope='row'>{`${asg.organizationName} (${asg.organizationID})`}</th>
         <td>{asg.name}</td>
         <td>{asg.launchConfiguration}</td>
         <td>{asg.created}</td>
-        <td>{asg.minSize}</td>
-        <td>{asg.maxSize}</td>
         <td>{asg.desiredSize}</td>
+        <td>{asg.instanceCount}</td>
         <td>
           <button
             className='btn btn-success'
@@ -45,13 +63,23 @@ class ASGRow extends React.Component {
           </button>
           <button
             className='btn btn-info'
-            disabled={asg.minSize === 0 && asg.desiredSize === 0}
+            disabled={asg.desiredSize === 0}
             onClick={this._decreaseASG}
           >
             Smaller!
           </button>
-          <button disabled className='btn btn-warning'>Disable!</button>
-          <button disabled className='btn btn-danger'>Destroy!</button>
+          <button
+            className='btn btn-warning'
+            disabled={asg.desiredSize === 0}
+            onClick={this._openModal}
+          >
+            Disable!
+          </button>
+          <DisableModal
+            closeModal={this._closeModal}
+            confirmSuccess={this._disableASG}
+            open={this.state && this.state.open}
+          />
         </td>
       </tr>
     )
@@ -69,11 +97,13 @@ export default Relay.createContainer(
           created
           desiredSize
           launchConfiguration
-          maxSize
-          minSize
           name
           organizationID
           organizationName
+          instanceCount
+          instances {
+            stateCode
+          }
         }
       `
     }

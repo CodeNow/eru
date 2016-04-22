@@ -21,9 +21,8 @@ class AWS extends React.Component {
                 <th>ASG Name</th>
                 <th>Launch Configuration Name</th>
                 <th>Created</th>
-                <th>Minimum</th>
-                <th>Maximum</th>
                 <th>Desired</th>
+                <th>Current</th>
                 <th>Action</th>
               </tr>
             </thead>

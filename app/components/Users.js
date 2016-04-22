@@ -1,6 +1,7 @@
 import find from '101/find'
 import React from 'react'
 import Relay from 'react-relay'
+import cookie from 'react-cookie'
 
 class Users extends React.Component {
   static propTypes = {
@@ -38,6 +39,14 @@ class Users extends React.Component {
     )
       .then((res) => {
         if (res.status === 200) {
+          cookie.save(
+            'isModerating',
+            user.githubID.toString(),
+            {
+              domain: '.' + domain,
+              path: '/'
+            }
+          )
           window.location.assign(`https://${domain}/`)
         } else {
           throw new Error('Authentication Failed.')
@@ -159,6 +168,7 @@ export default Relay.createContainer(
             edges {
               node {
                 id
+                githubID
                 githubAccessToken
                 githubUsername
               }

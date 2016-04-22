@@ -7466,6 +7466,16 @@
         }
       }
     },
+    "react-cookie": {
+      "version": "0.4.5",
+      "resolved": "https://registry.npmjs.org/react-cookie/-/react-cookie-0.4.5.tgz",
+      "dependencies": {
+        "cookie": {
+          "version": "0.1.5",
+          "resolved": "https://registry.npmjs.org/cookie/-/cookie-0.1.5.tgz"
+        }
+      }
+    },
     "react-dom": {
       "version": "0.14.7",
       "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-0.14.7.tgz"

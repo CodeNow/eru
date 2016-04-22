@@ -4,6 +4,9 @@ sudo: false
 cache:
   directories:
   - './node_modules'
+before_install:
+- npm install -g npm@3
+- npm config set progress false
 script:
 - npm run lint
 - npm run build

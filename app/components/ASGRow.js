@@ -28,7 +28,7 @@ class ASGRow extends React.Component {
 
   _disableASG = () => {
     this._changeASG(-1 * this.props.asg.desiredSize)
-    this.setState({ open: false })
+    this._closeModal()
   }
 
   _openModal = () => {
@@ -42,7 +42,7 @@ class ASGRow extends React.Component {
   render () {
     const { asg } = this.props
     const totalStateCode = asg.instances.reduce((t, c) => (t + c.stateCode), 0)
-    let avgStateCode = totalStateCode / asg.instanceCount
+    const avgStateCode = totalStateCode / asg.instanceCount
     const missingInstances = asg.desiredSize !== asg.instanceCount
     const notAllRunning = asg.instanceCount > 0 && avgStateCode !== 16
     const className = notAllRunning || missingInstances ? 'info' : ''

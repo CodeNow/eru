@@ -135,6 +135,14 @@ const dockType = new GraphQLObjectType({
     privateIP: {
       type: GraphQLString,
       resolve: (d) => (d.PrivateIpAddress)
+    },
+    stateCode: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (d) => (d.State.Code)
+    },
+    stateName: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (d) => (d.State.Name)
     }
   })
 })
@@ -175,6 +183,16 @@ const asgType = new GraphQLObjectType({
     organizationName: {
       type: new GraphQLNonNull(GraphQLString),
       resolve: (asg) => (asg.githubOrganization)
+    },
+    instanceCount: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (asg) => (asg.Instances.length)
+    },
+    instances: {
+      type: new GraphQLList(dockType),
+      resolve: (asg) => (
+        AWS.getInstances(asg.Instances.map((i) => (i.InstanceId)))
+      )
     }
   }),
   interfaces: [ nodeInterface ]

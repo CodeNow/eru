@@ -61,6 +61,21 @@ class AWSClass {
       .then((data) => (data.instances))
   }
 
+  static getInstances (instanceIDs) {
+    if (!instanceIDs || instanceIDs.length === 0) {
+      return []
+    }
+    return Promise.fromCallback((cb) => {
+      ec2.describeInstances({ InstanceIds: instanceIDs }, cb)
+    })
+      .then((instances) => {
+        return instances.Reservations.reduce((memo, curr) => {
+          Array.prototype.push.apply(memo, curr.Instances)
+          return memo
+        }, [])
+      })
+  }
+
   static _getGithubOrgForASGs (groups) {
     const github = appClientFactory()
     return Promise.map(groups, (g) => {

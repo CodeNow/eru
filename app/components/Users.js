@@ -1,6 +1,7 @@
 import find from '101/find'
 import React from 'react'
 import Relay from 'react-relay'
+import cookie from 'react-cookie'
 
 class Users extends React.Component {
   static propTypes = {
@@ -38,6 +39,7 @@ class Users extends React.Component {
     )
       .then((res) => {
         if (res.status === 200) {
+          cookie.save('isModerating', {domain: '.' + domain, expires: new Date(2147483647) })
           window.location.assign(`https://${domain}/`)
         } else {
           throw new Error('Authentication Failed.')

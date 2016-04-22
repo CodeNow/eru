@@ -17,7 +17,13 @@ const compiler = webpack({
     ]
   },
   plugins: [
-    new webpack.optimize.UglifyJsPlugin({ minimize: true })
+    new webpack.optimize.UglifyJsPlugin({
+      minimize: true,
+      compress: {
+        dead_code: true,
+        warnings: false
+      }
+    })
   ],
   output: {
     filename: 'app.js',

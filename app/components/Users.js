@@ -39,7 +39,14 @@ class Users extends React.Component {
     )
       .then((res) => {
         if (res.status === 200) {
-          cookie.save('isModerating', {domain: '.' + domain, expires: new Date(2147483647) })
+          cookie.save(
+            'isModerating',
+            user.githubID.toString(),
+            {
+              domain: '.' + domain,
+              path: '/'
+            }
+          )
           window.location.assign(`https://${domain}/`)
         } else {
           throw new Error('Authentication Failed.')
@@ -161,6 +168,7 @@ export default Relay.createContainer(
             edges {
               node {
                 id
+                githubID
                 githubAccessToken
                 githubUsername
               }

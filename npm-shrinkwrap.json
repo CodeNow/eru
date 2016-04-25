@@ -1,6 +1,6 @@
 {
   "name": "eru",
-  "version": "4.2.2",
+  "version": "4.2.3",
   "npm-shrinkwrap-version": "200.5.1",
   "node-version": "v4.4.0",
   "dependencies": {

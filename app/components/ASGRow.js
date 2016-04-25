@@ -63,7 +63,7 @@ class ASGRow extends React.Component {
           </button>
           <button
             className='btn btn-info'
-            disabled={asg.desiredSize === 0}
+            disabled={true || asg.desiredSize === 0}
             onClick={this._decreaseASG}
           >
             Smaller!

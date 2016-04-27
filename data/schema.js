@@ -290,6 +290,28 @@ const runnableType = new GraphQLObjectType({
   interfaces: [ nodeInterface ]
 })
 
+const ASGScaleIn = mutationWithClientMutationId({
+  name: 'ASGScaleIn',
+  inputFields: {
+    name: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    desiredSize: {
+      type: new GraphQLNonNull(GraphQLInt)
+    }
+  },
+  outputFields: {
+    asg: {
+      type: asgType,
+      resolve: (payload) => (AWS.getASGByName(payload.asgName))
+    }
+  },
+  mutateAndGetPayload: ({ name, desiredSize }) => (
+    AWS.scaleInASGByName(name, desiredSize)
+      .return({ asgName: name })
+  )
+})
+
 const ASGScale = mutationWithClientMutationId({
   name: 'ASGScale',
   inputFields: {
@@ -339,7 +361,8 @@ const queryType = new GraphQLObjectType({
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
-    ASGScale
+    ASGScale,
+    ASGScaleIn
   })
 })
 

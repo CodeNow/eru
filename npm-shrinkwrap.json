@@ -48,6 +48,16 @@
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.0.tgz"
     },
+    "amqplib": {
+      "version": "0.4.1",
+      "resolved": "https://registry.npmjs.org/amqplib/-/amqplib-0.4.1.tgz",
+      "dependencies": {
+        "readable-stream": {
+          "version": "1.1.14",
+          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-1.1.14.tgz"
+        }
+      }
+    },
     "ansi-escapes": {
       "version": "1.4.0",
       "resolved": "https://registry.npmjs.org/ansi-escapes/-/ansi-escapes-1.4.0.tgz"
@@ -568,6 +578,10 @@
       "version": "1.4.0",
       "resolved": "https://registry.npmjs.org/binary-extensions/-/binary-extensions-1.4.0.tgz"
     },
+    "bitsyntax": {
+      "version": "0.0.4",
+      "resolved": "https://registry.npmjs.org/bitsyntax/-/bitsyntax-0.0.4.tgz"
+    },
     "bl": {
       "version": "1.1.2",
       "resolved": "https://registry.npmjs.org/bl/-/bl-1.1.2.tgz",
@@ -619,6 +633,10 @@
           "resolved": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
         }
       }
+    },
+    "buffer-more-ints": {
+      "version": "0.0.2",
+      "resolved": "https://registry.npmjs.org/buffer-more-ints/-/buffer-more-ints-0.0.2.tgz"
     },
     "builtin-modules": {
       "version": "1.1.1",
@@ -1890,6 +1908,10 @@
     "ignore": {
       "version": "2.2.19",
       "resolved": "https://registry.npmjs.org/ignore/-/ignore-2.2.19.tgz"
+    },
+    "immutable": {
+      "version": "3.8.1",
+      "resolved": "https://registry.npmjs.org/immutable/-/immutable-3.8.1.tgz"
     },
     "indent-string": {
       "version": "2.1.0",
@@ -3266,6 +3288,10 @@
     "whatwg-fetch": {
       "version": "0.11.0",
       "resolved": "https://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-0.11.0.tgz"
+    },
+    "when": {
+      "version": "3.6.4",
+      "resolved": "https://registry.npmjs.org/when/-/when-3.6.4.tgz"
     },
     "window-size": {
       "version": "0.1.0",

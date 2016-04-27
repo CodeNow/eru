@@ -8,6 +8,7 @@ import Promise from 'bluebird'
 
 import { appClientFactory } from './github'
 import promiseWhile from '../lib/utils/promise-while'
+import RabbitMQ from '../lib/models/rabbitmq'
 
 const {
   AWS_ACCESS_KEY,
@@ -171,6 +172,96 @@ class AWSClass {
     return Promise.fromCallback((cb) => {
       asg.updateAutoScalingGroup(update, cb)
     })
+  }
+
+  static scaleInASGByName (name, desiredSize) {
+    return AWSClass.getASGByName(name)
+      .then((asgToUpdate) => {
+        desiredSize = Math.max(0, desiredSize)
+        if (desiredSize >= asgToUpdate.DesiredCapacity) {
+          throw new Error('must scale to lower capacity')
+        }
+        // if we are wanting smaller than the minimum, we need to bring the
+        // minimum down. we can bring the max down as well, but not below the
+        // current size.
+        const update = {
+          AutoScalingGroupName: asgToUpdate.AutoScalingGroupName
+        }
+        if (desiredSize < asgToUpdate.MinSize) {
+          update.MinSize = desiredSize
+        }
+        if (desiredSize < asgToUpdate.MaxSize) {
+          update.MaxSize = Math.max(desiredSize, asgToUpdate.DesiredCapacity)
+        }
+        return Promise.fromCallback((cb) => {
+          asg.updateAutoScalingGroup(update, cb)
+        })
+          .return(asgToUpdate)
+      })
+      .then((asgToUpdate) => {
+        if (asgToUpdate.Instances.length <= desiredSize) {
+          throw new Error('there are already <= instances than the desired size')
+        }
+        // try to only stop Running instances
+        let instances = asgToUpdate.Instances.filter((i) => (
+          i.LifecycleState === 'InService'
+        ))
+        // but if there are not enough, we will target all of them
+        if (instances.length < desiredSize) {
+          instances = asgToUpdate.Instances
+        }
+        const instanceIDsToDetach = []
+        for (var i = 0; i < (asgToUpdate.Instances.length - desiredSize); i++) {
+          instanceIDsToDetach.push(instances[i].InstanceId)
+        }
+        const update = {
+          AutoScalingGroupName: asgToUpdate.AutoScalingGroupName,
+          ShouldDecrementDesiredCapacity: true,
+          InstanceIds: instanceIDsToDetach
+        }
+        return Promise.fromCallback((cb) => {
+          asg.detachInstances(update, cb)
+        })
+          .return({ asgToUpdate, removedInstanceIDs: instanceIDsToDetach })
+      })
+      .then(({ asgToUpdate, removedInstanceIDs }) => {
+        const orgID = asgToUpdate.AutoScalingGroupName.split('-').pop()
+        return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
+          return Promise.map(
+            AWSClass.getInstances(removedInstanceIDs),
+            (removedInstance) => {
+              const job = {
+                githubID: orgID.toString(),
+                host: `http://${removedInstance.PrivateIpAddress}:4242`
+              }
+              return Promise.resolve(
+                rabbitMQ.channel.checkQueue('on-dock-unhealthy')
+                  .then(() => (
+                    rabbitMQ.channel.sendToQueue(
+                      'on-dock-unhealthy',
+                      new Buffer(JSON.stringify(job))
+                    )
+                  ))
+              )
+                .catch((err) => {
+                  console.error(err.stack || err.message || err)
+                  throw err
+                })
+            }
+          )
+        })
+      })
+      .catch((err) => { console.error(err.stack || err.message || err) })
+  }
+
+  static _getRabbitMQClient () {
+    const rabbitMQ = new RabbitMQ()
+    return Promise.resolve(
+      rabbitMQ.connect()
+        .then(() => (rabbitMQ))
+    ).disposer(() => (
+      rabbitMQ.disconnect()
+    ))
   }
 }
 

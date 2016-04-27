@@ -2,6 +2,7 @@ import React from 'react'
 import Relay from 'react-relay'
 
 import ASGScaleMutation from '../mutations/ASGScale'
+import ASGScaleInMutation from '../mutations/ASGScaleIn'
 import DisableModal from './DisableModal'
 
 class ASGRow extends React.Component {
@@ -23,7 +24,12 @@ class ASGRow extends React.Component {
   }
 
   _decreaseASG = () => {
-    this._changeASG(-1)
+    Relay.Store.commitUpdate(
+      new ASGScaleInMutation({
+        asg: this.props.asg,
+        amount: -1
+      })
+    )
   }
 
   _disableASG = () => {
@@ -63,7 +69,7 @@ class ASGRow extends React.Component {
           </button>
           <button
             className='btn btn-info'
-            disabled={true || asg.desiredSize === 0}
+            disabled={asg.desiredSize === 0}
             onClick={this._decreaseASG}
           >
             Smaller!
@@ -93,6 +99,7 @@ export default Relay.createContainer(
       asg: () => Relay.QL`
         fragment on AutoScaleGroup {
           ${ASGScaleMutation.getFragment('asg')}
+          ${ASGScaleInMutation.getFragment('asg')}
           id
           created
           desiredSize

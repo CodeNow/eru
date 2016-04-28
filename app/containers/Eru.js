@@ -89,9 +89,9 @@ class Eru extends React.Component {
             alertMessages={this.state.alertMessages}
           />
           {
-            React.Children.map(this.props.children, (c) => {
-              return React.cloneElement(c, { alertMessage: this._setAlertMessage })
-            })
+            React.Children.map(this.props.children, (c) => (
+              React.cloneElement(c, { alertMessage: this._setAlertMessage })
+            ))
           }
         </div>
       </div>

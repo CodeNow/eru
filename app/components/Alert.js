@@ -13,7 +13,6 @@ export default class Alert extends React.Component {
   }
 
   render () {
-    console.log(this.props)
     const { alertMessages } = this.props
     let baseClasses = 'alert alert-dismissible'
     const alerts = alertMessages.map((m, i) => {

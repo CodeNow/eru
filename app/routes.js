@@ -1,5 +1,5 @@
+import { IndexRoute, Route } from 'react-router'
 import React from 'react'
-import { Route, IndexRoute } from 'react-router'
 
 import AWS from './components/AWS'
 import Eru from './containers/Eru'
@@ -18,17 +18,17 @@ export default (
       component={Welcome}
     />
     <Route
-      path='/app/aws'
+      path='aws'
       component={AWS}
       queries={EruHomeQuery}
     />
     <Route
-      path='/app/services'
+      path='services'
       component={Services}
       queries={EruHomeQuery}
     />
     <Route
-      path='/app/users'
+      path='users'
       component={Users}
       queries={EruHomeQuery}
     />

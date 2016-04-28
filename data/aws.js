@@ -243,15 +243,14 @@ class AWSClass {
                     )
                   ))
               )
-                .catch((err) => {
-                  console.error(err.stack || err.message || err)
-                  throw err
-                })
             }
           )
         })
       })
-      .catch((err) => { console.error(err.stack || err.message || err) })
+      .catch((err) => {
+        console.error(err.stack || err.message || err)
+        throw err
+      })
   }
 
   static _getRabbitMQClient () {

@@ -2,11 +2,21 @@ import React from 'react'
 
 class Welcome extends React.Component {
   static propTypes = {
-    _setAlertMessage: React.PropTypes.func
+    alertMessage: React.PropTypes.func
   }
 
-  _setSampleAlert = () => {
-    this.props._setAlertMessage('OMG WOW ALERTING')
+  sampleError = () => {
+    this.props.alertMessage({
+      level: 'error',
+      message: `OMG WOW ${Math.random()}`
+    })
+  }
+
+  sampleSuccess = () => {
+    this.props.alertMessage({
+      level: 'success',
+      message: `YAY!! ${Math.random()}`
+    })
   }
 
   render () {
@@ -15,10 +25,16 @@ class Welcome extends React.Component {
         <div className='col-md-12'>
           <h4>Hello</h4>
           <button
-            className='btn btn-default'
-            onClick={this._setSampleAlert}
+            className='btn btn-danger'
+            onClick={this.sampleError}
           >
-            Sample Alert
+            Sample Error
+          </button>
+          <button
+            className='btn btn-success'
+            onClick={this.sampleSuccess}
+          >
+            Sample Success
           </button>
         </div>
       </div>

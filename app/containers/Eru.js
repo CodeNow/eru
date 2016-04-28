@@ -2,6 +2,8 @@ import React from 'react'
 import Relay from 'react-relay'
 import { Link } from 'react-router'
 
+import Alert from '../components/Alert'
+
 class NavLink extends Link {
   static propTypes = {
     children: React.PropTypes.array,
@@ -43,11 +45,28 @@ class Eru extends React.Component {
     relay: React.PropTypes.object.isRequired
   }
 
+  constructor (props) {
+    super(props)
+    this.state = { alertMessages: [] }
+  }
+
+  _setAlertMessage = (alertMessage) => {
+    const alertMessages = this.state.alertMessages.slice(0)
+    alertMessages.push(alertMessage)
+    this.setState({ alertMessages })
+  }
+
+  _clearAlertMessage = (index) => {
+    const alertMessages = this.state.alertMessages.slice(0)
+    alertMessages.splice(index, 1)
+    this.setState({ alertMessages })
+  }
+
   render () {
     return (
       <div>
         <nav className='navbar navbar-inverse navbar-fixed-top'>
-          <div className='container'>
+          <div className='container-fluid'>
             <div className='navbar-header'>
               <Link to='/app' className='navbar-brand'>Eru</Link>
             </div>
@@ -64,8 +83,16 @@ class Eru extends React.Component {
             </ul>
           </div>
         </nav>
-        <div className='container'>
-          {this.props.children}
+        <div className='container-fluid'>
+          <Alert
+            _clearAlertMessage={this._clearAlertMessage}
+            alertMessages={this.state.alertMessages}
+          />
+          {
+            React.Children.map(this.props.children, (c) => (
+              React.cloneElement(c, { alertMessage: this._setAlertMessage })
+            ))
+          }
         </div>
       </div>
     )

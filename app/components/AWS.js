@@ -5,16 +5,20 @@ import ASGRow from './ASGRow'
 
 class AWS extends React.Component {
   static propTypes = {
-    runnable: React.PropTypes.object
+    runnable: React.PropTypes.object,
+    alertMessage: React.PropTypes.func.isRequired
   }
 
   render () {
-    const { asgs } = this.props.runnable.aws
+    const {
+      alertMessage,
+      runnable: { aws: { asgs } }
+    } = this.props
     return (
       <div className='row'>
         <div className='col-md-12'>
           <h4>ASGs</h4>
-          <table className='table table-striped table-condensed'>
+          <table className='table table-striped table-condensed table-hover'>
             <thead>
               <tr>
                 <th>Organization ID</th>
@@ -32,6 +36,7 @@ class AWS extends React.Component {
                   <ASGRow
                     asg={asg}
                     key={asg.id}
+                    alertMessage={alertMessage}
                   />
                 ))
               }

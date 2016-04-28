@@ -7,7 +7,37 @@ import DisableModal from './DisableModal'
 
 class ASGRow extends React.Component {
   static propTypes = {
+    alertMessage: React.PropTypes.func.isRequired,
     asg: React.PropTypes.object
+  }
+
+  _alertError = (prefix) => {
+    return (transaction) => {
+      const error = transaction.getError() || new Error('Mutation Failed')
+      console.error(error)
+      if (error.source && Array.isArray(error.source.errors)) {
+        error.source.errors.forEach((e) => {
+          this.props.alertMessage({
+            level: 'error',
+            message: `${prefix} ${e.message}`
+          })
+        })
+      } else {
+        this.props.alertMessage({
+          level: 'error',
+          message: `${prefix} ${error.message}`
+        })
+      }
+    }
+  }
+
+  _alertSuccess = (message) => {
+    return () => {
+      this.props.alertMessage({
+        level: 'success',
+        message
+      })
+    }
   }
 
   _changeASG = (value) => {
@@ -15,7 +45,13 @@ class ASGRow extends React.Component {
       new ASGScaleMutation({
         asg: this.props.asg,
         amount: value
-      })
+      }),
+      {
+        onFailure: this._alertError('Failed to change ASG:'),
+        onSuccess: this._alertSuccess(
+          `Changed ASG for ${this.props.asg.organizationName} (${this.props.asg.organizationID}) by ${value}`
+        )
+      }
     )
   }
 
@@ -28,7 +64,13 @@ class ASGRow extends React.Component {
       new ASGScaleInMutation({
         asg: this.props.asg,
         amount: -1
-      })
+      }),
+      {
+        onFailure: this._alertError('Failed to scale-in ASG:'),
+        onSuccess: this._alertSuccess(
+          `Scaled-in ASG for ${this.props.asg.organizationName} (${this.props.asg.organizationID}) by -1`
+        )
+      }
     )
   }
 

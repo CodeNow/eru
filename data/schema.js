@@ -1,4 +1,5 @@
 import {
+  GraphQLFloat,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
@@ -33,6 +34,8 @@ const { nodeInterface, nodeField } = nodeDefinitions(
       return Runnable.getUsers(id)
     } else if (type === 'Organization') {
       return Runnable.getWhitelistedOrg(id)
+    } else if (type === 'AutoScaleGroup') {
+      return AWS.getASGByName(id)
     }
     console.error('[type] node def failed', type, id)
     return null
@@ -49,6 +52,8 @@ const { nodeInterface, nodeField } = nodeDefinitions(
       return userType
     } else if (obj._id && obj.allowed && obj.lowerName) {
       return orgType
+    } else if (obj.AutoScalingGroupName) {
+      return asgType
     }
     console.error('[type] failed to get the type', JSON.stringify(obj))
     return null
@@ -193,9 +198,31 @@ const asgType = new GraphQLObjectType({
       resolve: (asg) => (
         AWS.getInstances(asg.Instances.map((i) => (i.InstanceId)))
       )
+    },
+    reservedMemoryStatistics: {
+      type: new GraphQLList(statisticsType),
+      resolve: (asg) => (AWS.getMetricsForOrgByID(asg.AutoScalingGroupName.split('-').pop()))
     }
   }),
   interfaces: [ nodeInterface ]
+})
+
+const statisticsType = new GraphQLObjectType({
+  name: 'ASGStatistic',
+  fields: () => ({
+    timestamp: {
+      type: new GraphQLNonNull(GraphQLInt),
+      resolve: (s) => (s.Timestamp)
+    },
+    average: {
+      type: new GraphQLNonNull(GraphQLFloat),
+      resolve: (s) => (s.Average)
+    },
+    unit: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: (s) => (s.Unit)
+    }
+  })
 })
 
 const awsType = new GraphQLObjectType({

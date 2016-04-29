@@ -27,6 +27,7 @@ class AWS extends React.Component {
                 <th>Created</th>
                 <th>Desired</th>
                 <th>Current</th>
+                <th>Swarm Reserved Memory</th>
                 <th>Action</th>
               </tr>
             </thead>

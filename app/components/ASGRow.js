@@ -4,6 +4,7 @@ import Relay from 'react-relay'
 import ASGScaleMutation from '../mutations/ASGScale'
 import ASGScaleInMutation from '../mutations/ASGScaleIn'
 import DisableModal from './DisableModal'
+import MemoryGraph from './MemoryGraph'
 
 class ASGRow extends React.Component {
   static propTypes = {
@@ -103,6 +104,9 @@ class ASGRow extends React.Component {
         <td>{asg.desiredSize}</td>
         <td>{asg.instanceCount}</td>
         <td>
+          <MemoryGraph asg={asg} />
+        </td>
+        <td>
           <button
             className='btn btn-success'
             onClick={this._increaseASG}
@@ -142,6 +146,7 @@ export default Relay.createContainer(
         fragment on AutoScaleGroup {
           ${ASGScaleMutation.getFragment('asg')}
           ${ASGScaleInMutation.getFragment('asg')}
+          ${MemoryGraph.getFragment('asg')}
           id
           created
           desiredSize

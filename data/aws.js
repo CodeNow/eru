@@ -4,6 +4,7 @@ loadenv()
 import assign from '101/assign'
 import AWS from 'aws-sdk'
 import find from '101/find'
+import moment from 'moment'
 import Promise from 'bluebird'
 
 import { appClientFactory } from './github'
@@ -23,8 +24,9 @@ AWS.config.update({
   region: AWS_REGION
 })
 
-const ec2 = new AWS.EC2()
 const asg = new AWS.AutoScaling()
+const cloudwatch = new AWS.CloudWatch()
+const ec2 = new AWS.EC2()
 
 const FILTER_PARAMS = {
   Filters: [
@@ -261,6 +263,41 @@ class AWSClass {
     ).disposer(() => (
       rabbitMQ.disconnect()
     ))
+  }
+
+  static getMetricsForOrgByID (orgID) {
+    const endTime = moment().startOf('minute')
+    const startTime = moment().startOf('minute').subtract(4, 'hours')
+    const opts = {
+      EndTime: endTime.unix(),
+      StartTime: startTime.unix(),
+      Period: 5 * 60, // 5 minutes
+      Namespace: 'Runnable/Swarm',
+      MetricName: 'Swarm Reserved Memory',
+      Dimensions: [{
+        Name: 'AutoScalingGroupName',
+        Value: `asg-production-${AWS_ENVIRONMENT}-${orgID}`
+      }],
+      Statistics: [
+        'Average'
+      ],
+      Unit: 'Percent'
+    }
+    return Promise.fromCallback((cb) => {
+      cloudwatch.getMetricStatistics(opts, cb)
+    })
+      .then((data) => {
+        // they are not sorted... let's sort them
+        data.Datapoints = data.Datapoints.map((d) => ({
+          ...d,
+          Timestamp: moment(d.Timestamp).unix()
+        }))
+        return data.Datapoints.sort((a, b) => {
+          if (a.Timestamp < b.Timestamp) { return -1 }
+          if (b.Timestamp < a.Timestamp) { return 1 }
+          return 0
+        })
+      })
   }
 }
 

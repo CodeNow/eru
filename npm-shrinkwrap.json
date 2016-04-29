@@ -814,9 +814,17 @@
       "version": "3.2.8",
       "resolved": "https://registry.npmjs.org/crypto-browserify/-/crypto-browserify-3.2.8.tgz"
     },
+    "cubism": {
+      "version": "1.6.0",
+      "resolved": "https://registry.npmjs.org/cubism/-/cubism-1.6.0.tgz"
+    },
     "d": {
       "version": "0.1.1",
       "resolved": "https://registry.npmjs.org/d/-/d-0.1.1.tgz"
+    },
+    "d3": {
+      "version": "3.5.16",
+      "resolved": "https://registry.npmjs.org/d3/-/d3-3.5.16.tgz"
     },
     "dashdash": {
       "version": "1.13.1",
@@ -2324,6 +2332,10 @@
           "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
         }
       }
+    },
+    "moment": {
+      "version": "2.13.0",
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.13.0.tgz"
     },
     "mongodb": {
       "version": "2.1.16",

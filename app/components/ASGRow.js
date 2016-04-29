@@ -1,11 +1,10 @@
 import React from 'react'
 import Relay from 'react-relay'
-import cubism from 'cubism'
-import d3 from 'd3'
 
 import ASGScaleMutation from '../mutations/ASGScale'
 import ASGScaleInMutation from '../mutations/ASGScaleIn'
 import DisableModal from './DisableModal'
+import MemoryGraph from './MemoryGraph'
 
 class ASGRow extends React.Component {
   static propTypes = {
@@ -89,45 +88,6 @@ class ASGRow extends React.Component {
     this.setState({ open: false })
   }
 
-  componentDidMount () {
-    const data = this.props.asg.reservedMemoryStatistics.map((s) => (s.average / 100))
-    console.log(data)
-    const container = this.refs['chart-container']
-    const context = cubism.context()
-      .serverDelay(0)
-      .step(5 * 60 * 100)
-      .size(48)
-      .stop()
-
-    // d3.select(container).selectAll('.axis')
-    //     .data(['top', 'bottom'])
-    //   .enter().append('div')
-    //     .attr('class', function (d) { return d + ' axis' })
-    //     .each(function (d) {
-    //       d3.select(this).call(context.axis())
-    //     })
-
-    // d3.select(container).append('div')
-    //   .attr('class', 'rule')
-    //   .call(context.rule())
-
-    const metric = context.metric((start, stop, step, cb) => {
-      cb(null, data)
-    }, '')
-
-    d3.select(container).selectAll('.horizon')
-        .data([metric])
-      .enter().insert('div', '.bottom')
-        .attr('class', 'horizon')
-      .call(context.horizon().extent([0, 1]).format(d3.format('.3p')))
-
-    // context.on('focus', function (i) {
-    //   console.log(context.size(), i, context.size()-i)
-    //   d3.selectAll('.value')
-    //     .style('right', i ? context.size() - i + 'px' : null)
-    // })
-  }
-
   render () {
     const { asg } = this.props
     const totalStateCode = asg.instances.reduce((t, c) => (t + c.stateCode), 0)
@@ -143,8 +103,8 @@ class ASGRow extends React.Component {
         <td>{asg.created}</td>
         <td>{asg.desiredSize}</td>
         <td>{asg.instanceCount}</td>
-        <td style={{maxWidth: '48px'}}>
-          <div ref='chart-container'></div>
+        <td>
+          <MemoryGraph asg={asg} />
         </td>
         <td>
           <button
@@ -186,6 +146,7 @@ export default Relay.createContainer(
         fragment on AutoScaleGroup {
           ${ASGScaleMutation.getFragment('asg')}
           ${ASGScaleInMutation.getFragment('asg')}
+          ${MemoryGraph.getFragment('asg')}
           id
           created
           desiredSize
@@ -196,11 +157,6 @@ export default Relay.createContainer(
           instanceCount
           instances {
             stateCode
-          }
-          reservedMemoryStatistics {
-            timestamp
-            average
-            unit
           }
         }
       `

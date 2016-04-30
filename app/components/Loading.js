@@ -23,7 +23,7 @@ class Loading extends React.Component {
       <div className='row'>
         <div className='col-xs-12'>
           <p className='text-center'>
-            <i className='fa fa-spinner fa-spin fa-3x fa-fw fa-align-center margin-bottom'></i>
+            <i className='fa fa-spinner fa-spin fa-3x fa-fw margin-bottom'></i>
           </p>
         </div>
       </div>

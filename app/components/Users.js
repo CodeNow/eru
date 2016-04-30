@@ -60,7 +60,7 @@ class Users extends React.Component {
   handleOrgSelect (e) {
     this.props.relay.setVariables({
       orgID: parseInt(e.target.value, 10),
-      userPageSize: 1000000
+      showUsers: true
     })
   }
 
@@ -148,7 +148,7 @@ export default Relay.createContainer(
   {
     initialVariables: {
       pageSize: 1000000,
-      userPageSize: 0,
+      showUsers: false,
       orgID: null
     },
     fragments: {
@@ -164,7 +164,7 @@ export default Relay.createContainer(
               }
             }
           }
-          users(first: $userPageSize, orgID: $orgID) {
+          users(first: $pageSize, orgID: $orgID) @include(if: $showUsers) {
             edges {
               node {
                 id

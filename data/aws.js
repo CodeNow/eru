@@ -8,6 +8,7 @@ import moment from 'moment'
 import Promise from 'bluebird'
 
 import { appClientFactory } from './github'
+import CacheLayer from './cache-layer'
 import promiseWhile from '../lib/utils/promise-while'
 import RabbitMQ from '../lib/models/rabbitmq'
 
@@ -40,6 +41,11 @@ const FILTER_PARAMS = {
 
 class AWSClass {
   static listDocks () {
+    const cacheLayer = new CacheLayer()
+    return cacheLayer.runAgainstCache('awsInstances', AWSClass._listDocks)
+  }
+
+  static _listDocks () {
     return Promise.resolve({ instances: [] })
       .then(promiseWhile(
         (data) => (data.done),
@@ -126,6 +132,11 @@ class AWSClass {
   }
 
   static listASGs () {
+    const cacheLayer = new CacheLayer()
+    return cacheLayer.runAgainstCache('awsASGs', AWSClass._listASGs)
+  }
+
+  static _listASGs () {
     return Promise.resolve({ asgs: [] })
       .then(promiseWhile(
         (data) => (data.done),

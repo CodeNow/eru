@@ -1,10 +1,24 @@
 import React from 'react'
 import Relay from 'react-relay'
 
-import ASGScaleMutation from '../mutations/ASGScale'
 import ASGScaleInMutation from '../mutations/ASGScaleIn'
-import DisableModal from './DisableModal'
+import ASGScaleMutation from '../mutations/ASGScale'
 import MemoryGraph from './MemoryGraph'
+import Modal from './Modal'
+
+class DisableASGModalBody extends React.Component {
+  static propTypes = {
+    organizationName: React.PropTypes.string.isRequired
+  }
+
+  render () {
+    return (
+      <p>
+        Please confirm you would like to disable the organization {this.props.organizationName}.
+      </p>
+    )
+  }
+}
 
 class ASGRow extends React.Component {
   static propTypes = {
@@ -127,7 +141,10 @@ class ASGRow extends React.Component {
           >
             Disable!
           </button>
-          <DisableModal
+          <Modal
+            title='Confirm Disable'
+            body={<DisableASGModalBody organizationName={this.props.asg.organizationName} />}
+            confirmPrompt='Yup, Disable It!'
             closeModal={this._closeModal}
             confirmSuccess={this._disableASG}
             open={this.state && this.state.open}

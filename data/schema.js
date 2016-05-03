@@ -1,4 +1,5 @@
 import {
+  GraphQLBoolean,
   GraphQLFloat,
   GraphQLInt,
   GraphQLList,
@@ -8,13 +9,15 @@ import {
   GraphQLString
 } from 'graphql'
 import {
+  connectionArgs,
+  connectionDefinitions,
+  connectionFromPromisedArray,
+  cursorForObjectInConnection,
   fromGlobalId,
   globalIdField,
-  nodeDefinitions,
   mutationWithClientMutationId,
-  connectionArgs,
-  connectionFromPromisedArray,
-  connectionDefinitions
+  nodeDefinitions,
+  toGlobalId
 } from 'graphql-relay'
 import find from '101/find'
 
@@ -33,7 +36,7 @@ const { nodeInterface, nodeField } = nodeDefinitions(
     } else if (type === 'User') {
       return Runnable.getUsers(id)
     } else if (type === 'Organization') {
-      return Runnable.getWhitelistedOrg(id)
+      return Runnable.getWhitelistedOrgByID(id)
     } else if (type === 'AutoScaleGroup') {
       return AWS.getASGByName(id)
     }
@@ -76,6 +79,10 @@ const orgType = new GraphQLObjectType({
     githubName: {
       type: new GraphQLNonNull(GraphQLString),
       resolve: (o) => (o.lowerName)
+    },
+    allowed: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      resolve: (o) => (!!o.allowed)
     },
     users: {
       type: userConnection,
@@ -258,7 +265,8 @@ const serviceType = new GraphQLObjectType({
 })
 
 const {
-  connectionType: orgConnection
+  connectionType: orgConnection,
+  edgeType: OrgEdge
 } = connectionDefinitions({ nodeType: orgType })
 
 const {
@@ -339,6 +347,104 @@ const ASGScaleIn = mutationWithClientMutationId({
   )
 })
 
+const WhitelistAdd = mutationWithClientMutationId({
+  name: 'WhitelistAdd',
+  inputFields: {
+    name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'Github Organization to add to Whitelist.'
+    },
+    allowed: {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      description: 'Flag to enable organization on Runnable.'
+    }
+  },
+  outputFields: {
+    newOrgEdge: {
+      type: OrgEdge,
+      resolve: ({ githubID, queryUser }) => {
+        return Promise.props({
+          newOrg: Runnable.getWhitelistedOrgByID(githubID),
+          allOrgs: Runnable.getWhitelistedOrgs(queryUser)
+        })
+          .then(({ newOrg, allOrgs }) => ({
+            cursor: cursorForObjectInConnection(
+              allOrgs,
+              newOrg
+            ),
+            node: newOrg
+          }))
+      }
+    },
+    runnable: {
+      type: runnableType,
+      resolve: ({ queryUser }) => ({ queryUser })
+    }
+  },
+  mutateAndGetPayload: ({ name, allowed }, _, { rootValue: { queryUser } }) => {
+    return Runnable.addOrgToWhitelist(name, allowed)
+      .then(({ id }) => {
+        return AWS.createAWSASGCluster(id)
+          .return({ id })
+      })
+      .then(({ id }) => ({
+        githubID: id,
+        queryUser
+      }))
+  }
+})
+
+const WhitelistToggle = mutationWithClientMutationId({
+  name: 'WhitelistToggle',
+  inputFields: {
+    name: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    allowed: {
+      type: new GraphQLNonNull(GraphQLBoolean)
+    }
+  },
+  outputFields: {
+    org: {
+      type: orgType,
+      resolve: ({ orgName }) => (Runnable.getWhitelistedOrgByName(orgName))
+    }
+  },
+  mutateAndGetPayload: ({ name, allowed }) => (
+    Runnable.updateOrgInWhitelist(name, allowed)
+      .return({ orgName: name })
+  )
+})
+
+const WhitelistRemove = mutationWithClientMutationId({
+  name: 'WhitelistRemove',
+  inputFields: {
+    name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'Github Organization remove from the Whitelist.'
+    }
+  },
+  outputFields: {
+    removedOrgIDs: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: ({ removedGithubID }) => (
+        toGlobalId('Organization', removedGithubID)
+      )
+    },
+    runnable: {
+      type: runnableType,
+      resolve: ({ queryUser }) => ({ queryUser })
+    }
+  },
+  mutateAndGetPayload: ({ name }, _, { rootValue: { queryUser } }) => {
+    return Runnable.removeOrgFromWhitelist(name)
+      .then(({ id }) => ({
+        removedGithubID: id,
+        queryUser
+      }))
+  }
+})
+
 const ASGScale = mutationWithClientMutationId({
   name: 'ASGScale',
   inputFields: {
@@ -389,7 +495,10 @@ const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
     ASGScale,
-    ASGScaleIn
+    ASGScaleIn,
+    WhitelistAdd,
+    WhitelistRemove,
+    WhitelistToggle
   })
 })
 

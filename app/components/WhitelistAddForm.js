@@ -35,8 +35,7 @@ class WhitelistAddForm extends React.Component {
             onChange={this.handleInputChange}
           />
         </div>
-        <button disabled type='submit' className='btn btn-success'>Add</button>
-        <p>Adding will be enabled soon. One more task...</p>
+        <button type='submit' className='btn btn-success'>Add</button>
       </form>
     )
   }

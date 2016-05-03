@@ -4,7 +4,10 @@ loadenv()
 import Promise from 'bluebird'
 import MongoDB from 'mongodb'
 
-import { tokenClientFactory } from './github'
+import {
+  appClientFactory,
+  tokenClientFactory
+} from './github'
 
 const MongoClient = Promise.promisifyAll(MongoDB.MongoClient)
 
@@ -40,7 +43,7 @@ const WHITELIST_SORT = {
   lowerName: 1
 }
 
-class Mongo {
+class RunnableClient {
   constructor () {
     this.DOMAIN = RUNNABLE_DOMAIN
   }
@@ -79,15 +82,80 @@ class Mongo {
     })
   }
 
-  getWhitelistedOrg (id) {
-    const intID = parseInt(id, 10)
+  addOrgToWhitelist (orgName, allowed) {
+    const github = appClientFactory()
     return Promise.fromCallback((cb) => {
-      this.db.collection('instances')
-        .findOne({ 'owner.github': intID }, { owner: 1 }, cb)
+      github.orgs.get({ org: orgName }, cb)
     })
-      .then((info) => {
+      .then((orgInfo) => {
+        const insertQuery = {
+          name: orgInfo.login,
+          lowerName: orgInfo.login.toLowerCase(),
+          allowed: !!allowed
+        }
+        return Promise.fromCallback((cb) => {
+          this.db.collection('userwhitelists')
+            .insert(insertQuery, cb)
+        })
+          .then(({ insertedCount }) => {
+            if (insertedCount !== 1) {
+              throw new Error('Did not insert the user into the whitelist.')
+            }
+            return { id: orgInfo.id }
+          })
+      })
+  }
+
+  updateOrgInWhitelist (orgName, allowed) {
+    const searchQuery = { lowerName: orgName.toLowerCase() }
+    const update = { $set: { allowed: !!allowed } }
+    return Promise.fromCallback((cb) => {
+      this.db.collection('userwhitelists')
+        .findOneAndUpdate(searchQuery, update, cb)
+    })
+  }
+
+  removeOrgFromWhitelist (orgName) {
+    const github = appClientFactory()
+    return Promise.fromCallback((cb) => {
+      github.orgs.get({ org: orgName }, cb)
+    })
+      .then((orgInfo) => {
+        const removeQuery = {
+          lowerName: orgInfo.login.toLowerCase()
+        }
+        return Promise.fromCallback((cb) => {
+          this.db.collection('userwhitelists')
+            .remove(removeQuery, { single: true }, cb)
+        })
+          .then(({ result: { n: matchedCount } }) => {
+            if (matchedCount !== 1) {
+              throw new Error('Did remove the user from the whitelist.')
+            }
+            return { id: orgInfo.id }
+          })
+      })
+  }
+
+  getWhitelistedOrgByName (orgName) {
+    const github = appClientFactory()
+    return Promise.fromCallback((cb) => {
+      github.orgs.get({ org: orgName }, cb)
+    })
+      .then((orgInfo) => {
+        return this.getWhitelistedOrgByID(orgInfo.id)
+      })
+  }
+
+  getWhitelistedOrgByID (id) {
+    const intID = parseInt(id, 10)
+    const github = appClientFactory()
+    return Promise.fromCallback((cb) => {
+      github.users.getById({ id }, cb)
+    })
+      .then((githubInfo) => {
         const query = {
-          lowerName: info.owner.username,
+          lowerName: githubInfo.login.toLowerCase(),
           ...WHITELIST_QUERY
         }
         return Promise.fromCallback((cb) => {
@@ -149,4 +217,4 @@ class Mongo {
   }
 }
 
-export default new Mongo()
+export default new RunnableClient()

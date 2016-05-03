@@ -1,6 +1,18 @@
 import React from 'react'
 
-class DisableModal extends React.Component {
+class Modal extends React.Component {
+  static propTypes = {
+    body: React.PropTypes.object.isRequired,
+    title: React.PropTypes.string.isRequired,
+    cancelPrompt: React.PropTypes.string,
+    confirmPrompt: React.PropTypes.string
+  }
+
+  static defaultProps = {
+    cancelPrompt: 'Nope',
+    confirmPrompt: 'Yup'
+  }
+
   render () {
     const backdropClass = 'modal-backdrop ' + (this.props.open ? 'in' : '')
     const modalClass = 'modal ' + (this.props.open ? 'in' : '')
@@ -23,12 +35,10 @@ class DisableModal extends React.Component {
           <div className='modal-dialog'>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title'>Confirm Disable</h4>
+                <h4 className='modal-title'>{this.props.title}</h4>
               </div>
               <div className='modal-body'>
-                <p>
-                  Please confirm you would like to disable this organization.
-                </p>
+                {this.props.body}
               </div>
               <div className='modal-footer'>
                 <button
@@ -37,14 +47,14 @@ class DisableModal extends React.Component {
                   data-dismiss='modal'
                   onClick={this.props.closeModal}
                 >
-                  Nope
+                  {this.props.cancelPrompt}
                 </button>
                 <button
                   type='button'
                   className='btn btn-primary'
                   onClick={this.props.confirmSuccess}
                 >
-                  Yup, Disable It!
+                  {this.props.confirmPrompt}
                 </button>
               </div>
             </div>
@@ -55,4 +65,4 @@ class DisableModal extends React.Component {
   }
 }
 
-export default DisableModal
+export default Modal

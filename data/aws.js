@@ -339,7 +339,6 @@ class AWSClass {
           return newStatsPromise
             .then((sortedNewData) => {
               Array.prototype.push.apply(cachedData, sortedNewData)
-              console.log('returning results', cachedData.length)
               return cachedData
             })
         }

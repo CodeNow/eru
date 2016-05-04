@@ -72,6 +72,13 @@ class CacheLayer {
       min.unix(),
       max.unix()
     )
+      .then((cachedData) => {
+        return cachedData.map((d) => {
+          let [ Timestamp, Average, Unit ] = d.split('::')
+          Timestamp = moment(Timestamp).unix()
+          return { Timestamp, Average, Unit }
+        })
+      })
   }
 }
 

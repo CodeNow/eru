@@ -309,11 +309,6 @@ class AWSClass {
     const cacheLayer = new CacheLayer()
     return cacheLayer.getTimestampedData(orgID, startTime, endTime)
       .then((cachedData) => {
-        cachedData = cachedData.map((d) => {
-          let [ Timestamp, Average, Unit ] = d.split('::')
-          Timestamp = moment(Timestamp).unix()
-          return { Timestamp, Average, Unit }
-        })
         if (cachedData.length === NUM_DATAPOINTS) {
           return cachedData
         } else {

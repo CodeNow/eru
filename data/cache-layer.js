@@ -15,11 +15,9 @@ class CacheLayer {
 
   _getKeyFromCache (key) {
     key = `eruCache::${key}`
-    console.log('getting key', key)
     return this.redisClient.getAsync(key)
       .then((value) => {
         if (!value) {
-          console.log('no value')
           throw new CacheInvalidError()
         }
         return JSON.parse(value)
@@ -51,7 +49,6 @@ class CacheLayer {
       // moment parse w/ unix timestamp (in seconds)
       // also ensure that it is rounded to the beginning of the minute
       const timestamp = moment(d.Timestamp, 'X').startOf('minute')
-      console.log(`saving ${d.Timestamp} ${timestamp.format()}`)
       scoresAndMembers.push(timestamp.unix())
       scoresAndMembers.push(`${timestamp.format()}::${d.Average}::${d.Unit}`)
     })
@@ -70,7 +67,6 @@ class CacheLayer {
     const max = moment.isMoment(stop)
       ? stop
       : moment(stop, 'X').startOf('minute')
-    console.log(`getting ${min.format()} ${max.format()}`)
     return this.redisClient.zrangebyscoreAsync(
       `${this.CACHE_PREFIX}timestampedData::${orgID}`,
       min.unix(),

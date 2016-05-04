@@ -41,11 +41,6 @@ const FILTER_PARAMS = {
 
 class AWSClass {
   static listDocks () {
-    const cacheLayer = new CacheLayer()
-    return cacheLayer.runAgainstCache('awsInstances', AWSClass._listDocks)
-  }
-
-  static _listDocks () {
     return Promise.resolve({ instances: [] })
       .then(promiseWhile(
         (data) => (data.done),
@@ -132,11 +127,6 @@ class AWSClass {
   }
 
   static listASGs () {
-    const cacheLayer = new CacheLayer()
-    return cacheLayer.runAgainstCache('awsASGs', AWSClass._listASGs)
-  }
-
-  static _listASGs () {
     return Promise.resolve({ asgs: [] })
       .then(promiseWhile(
         (data) => (data.done),
@@ -272,7 +262,6 @@ class AWSClass {
     return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
       return Promise.resolve(rabbitMQ.channel.checkQueue('asg.create'))
         .then(() => {
-          console.log('sending to queue', JSON.stringify(job))
           return Promise.resolve(
             rabbitMQ.channel.sendToQueue(
               'asg.create',
@@ -295,8 +284,13 @@ class AWSClass {
   }
 
   static getMetricsForOrgByID (orgID) {
-    const endTime = moment().startOf('minute')
-    const startTime = moment().startOf('minute').subtract(4, 'hours')
+    // we are going to round down to the nearest 5 minute mark. will make
+    // caching easier and make graphs consistant
+    let endTime = moment().startOf('minute')
+    endTime = endTime.subtract(endTime.minute() % 5, 'minutes')
+    let startTime = moment().startOf('minute').subtract(4, 'hours')
+    startTime = startTime.subtract(startTime.minute() % 5, 'minutes')
+    const NUM_DATAPOINTS = 4 * 60 / 5 // === 48
     const opts = {
       EndTime: endTime.unix(),
       StartTime: startTime.unix(),
@@ -312,20 +306,48 @@ class AWSClass {
       ],
       Unit: 'Percent'
     }
-    return Promise.fromCallback((cb) => {
-      cloudwatch.getMetricStatistics(opts, cb)
-    })
-      .then((data) => {
-        // they are not sorted... let's sort them
-        data.Datapoints = data.Datapoints.map((d) => ({
-          ...d,
-          Timestamp: moment(d.Timestamp).unix()
-        }))
-        return data.Datapoints.sort((a, b) => {
-          if (a.Timestamp < b.Timestamp) { return -1 }
-          if (b.Timestamp < a.Timestamp) { return 1 }
-          return 0
+    const cacheLayer = new CacheLayer()
+    return cacheLayer.getTimestampedData(orgID, startTime, endTime)
+      .then((cachedData) => {
+        cachedData = cachedData.map((d) => {
+          let [ Timestamp, Average, Unit ] = d.split('::')
+          Timestamp = moment(Timestamp).unix()
+          return { Timestamp, Average, Unit }
         })
+        if (cachedData.length === NUM_DATAPOINTS) {
+          return cachedData
+        } else {
+          const newStart = startTime.add(5 * cachedData.length, 'minutes')
+          opts.StartTime = newStart.unix()
+          // get and format the new stats
+          const newStatsPromise = Promise.fromCallback((cb) => {
+            cloudwatch.getMetricStatistics(opts, cb)
+          })
+            .then((newData) => {
+              // this new data is just what we need
+              // they are not sorted... let's sort them
+              newData.Datapoints = newData.Datapoints.map((d) => ({
+                ...d,
+                Timestamp: moment(d.Timestamp).unix()
+              }))
+              return newData.Datapoints.sort((a, b) => {
+                if (a.Timestamp < b.Timestamp) { return -1 }
+                if (b.Timestamp < a.Timestamp) { return 1 }
+                return 0
+              })
+            })
+          // once we have the new stats, save it to a cache
+          newStatsPromise.then((newData) => {
+            return cacheLayer.saveTimestampedData(orgID, newData)
+          })
+          // once we have the new stats, concat it to the cached data and return
+          return newStatsPromise
+            .then((sortedNewData) => {
+              Array.prototype.push.apply(cachedData, sortedNewData)
+              console.log('returning results', cachedData.length)
+              return cachedData
+            })
+        }
       })
   }
 }

@@ -25,16 +25,11 @@ Eru has become responsible for the following actions on Runnable:
 
 This entire project uses Babel to transform a lot of the ES6 code. While one can get away with any version of Node, it is _highly_ recommended that Node `4` or better is used along with npm `3` or better. npm `3` has fixes to do better dependency duplication handling as well as an improved (IMO) shrinkwrap function.
 
-This project includes React, Relay, GraphQL, and Express. In order to work on this project and be able to quickly test functionally, the following steps need to be taken:
-
-1. `npm install` to get all dependencies
-1. Start a Redis service; connection defined with `REDIS_HOSTNAME` and `REDIS_PORT` environment variables
-1. Start a Mongo service; connection defined with `MONGODB_*` environment variables
-1. Start a RabbitMQ service; connection defined with `RABBITMQ_*` environment variables
+To get all the npm modules, `npm install` will do nicely.
 
 ### npm shrinkwrap
 
-This project _does_ have an `npm-shrinkwrap.json` file to maintain consistency 
+This project _does_ have an `npm-shrinkwrap.json` file to maintain consistency
 
 ### User Data
 
@@ -42,11 +37,22 @@ In order to make everything function correctly, it is required that you provide 
 
 ```javascript
 export default {
-  username: "githubUsername",
   id: githubID, // an integer
-  accessToken: "accessToken" // GitHub token w/ org:read access
+  username: 'githubUsername',
+  accessToken: 'accessToken' // GitHub token w/ org:read access
 }
 ```
+
+### Services
+
+To get services up and running for working with Eru, install Docker for Mac (the native one) and run the following:
+
+```bash
+npm run start:dev-services
+npm run seed-database
+```
+
+This will spin up a container each for Redis, RabbitMQ, MongoDB, and Consul, and then populate them with some basic data to give Eru basic functionality.
 
 ### Frontend
 

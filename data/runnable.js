@@ -52,12 +52,15 @@ class RunnableClient {
     if (this.db) {
       throw new Error('Do not connect to mongodb twice.')
     }
-    const connString = `mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOSTS}/${MONGODB_DATABASE}`
-    const connOpts = {
-      replset: {
-        replicaSet: `${MONGODB_REPLSET}`
-      }
+    const connOpts = {}
+    if (MONGODB_REPLSET) {
+      connOpts.replset = { replicaSet: `${MONGODB_REPLSET}` }
     }
+    let mongoAuth = ''
+    if (MONGODB_USERNAME && MONGODB_PASSWORD) {
+      mongoAuth = `${MONGODB_USERNAME}:${MONGODB_PASSWORD}@`
+    }
+    const connString = `mongodb://${mongoAuth}${MONGODB_HOSTS}/${MONGODB_DATABASE}`
     return MongoClient.connectAsync(connString, connOpts)
       .then((db) => {
         this.db = db

@@ -7,9 +7,11 @@
     "build": "npm run build:schema && npm run build:webpack",
     "build:schema": "babel-node ./scripts/update-schema.js",
     "build:webpack": "babel-node ./scripts/build-webpack.js",
-    "dev-server": "NODE_ENV=development babel-node ./lib/dev-server.js",
     "lint": "standard --verbose",
+    "seed-database": "NODE_ENV=development babel-node ./scripts/seed-database.js",
     "start:app-server": "babel-node ./index-app.js",
+    "start:dev-server": "NODE_ENV=development babel-node ./lib/dev-server.js",
+    "start:dev-services": "./scripts/start-eru-services.sh",
     "start:graphql-server": "babel-node ./index-graphql.js",
     "test": "standard --verbose"
   },

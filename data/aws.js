@@ -136,8 +136,7 @@ class AWSClass {
                 Name: 'value',
                 Values: [`production-${AWS_ENVIRONMENT}`]
               }
-            ],
-            MaxRecords: 25
+            ]
           }
           if (data.NextToken) { opts.NextToken = data.NextToken }
           return Promise.fromCallback((cb) => {
@@ -159,24 +158,26 @@ class AWSClass {
   static listASGs (queryUser) {
     return AWSClass.getASGNamesForEnvironment()
       .then((names) => {
-        return Promise.resolve({ asgs: [] })
+        const pageSize = 50
+        return Promise.resolve({ names: names, asgs: [] })
           .then(promiseWhile(
-            (data) => (data.done),
+            (data) => (!data.names.length),
             (data) => {
+              const num = Math.min(pageSize, data.names.length)
               const opts = {
-                AutoScalingGroupNames: names,
-                MaxRecords: 25
+                AutoScalingGroupNames: names.splice(0, num)
               }
-              if (data.NextToken) { opts.NextToken = data.NextToken }
+              // NextToken is not used here since we are limiting to 50 entries.
               return Promise.fromCallback((cb) => {
                 asg.describeAutoScalingGroups(opts, cb)
               })
-              .then((awsData) => {
-                Array.prototype.push.apply(data.asgs, awsData.AutoScalingGroups)
-                data.NextToken = awsData.NextToken
-                data.done = !awsData.NextToken
-                return data
-              })
+                .then((awsData) => {
+                  Array.prototype.push.apply(
+                    data.asgs,
+                    awsData.AutoScalingGroups
+                  )
+                  return data
+                })
             }
           ))
           .then((data) => (data.asgs))

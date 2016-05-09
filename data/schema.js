@@ -243,7 +243,7 @@ const awsType = new GraphQLObjectType({
     },
     asgs: {
       type: new GraphQLList(asgType),
-      resolve: () => (AWS.listASGs())
+      resolve: ({ queryUser }) => (AWS.listASGs(queryUser))
     }
   })
 })

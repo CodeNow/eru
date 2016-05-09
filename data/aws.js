@@ -7,7 +7,7 @@ import find from '101/find'
 import moment from 'moment'
 import Promise from 'bluebird'
 
-import { appClientFactory } from './github'
+import { appClientFactory, tokenClientFactory } from './github'
 import CacheLayer from './cache-layer'
 import promiseWhile from '../lib/utils/promise-while'
 import RabbitMQ from '../lib/models/rabbitmq'
@@ -80,8 +80,10 @@ class AWSClass {
       })
   }
 
-  static _getGithubOrgForASGs (groups) {
-    const github = appClientFactory()
+  static _getGithubOrgForASGs (groups, queryUser) {
+    const github = queryUser && queryUser.accessToken
+      ? tokenClientFactory(queryUser.accessToken)
+      : appClientFactory()
     return Promise.map(groups, (g) => {
       return Promise.fromCallback((cb) => {
         github.users.getById({ id: g.org }, cb)
@@ -102,21 +104,15 @@ class AWSClass {
       })
   }
 
-  static _filterAndFormatASGs (groups) {
+  static _formatAndSortASGs (groups, queryUser) {
     return Promise.try(() => {
-      return groups.filter((g) => {
-        if (!find(g.Tags, (t) => (t.Key === 'org'))) { return false }
-        if (!find(g.Tags, (t) => (t.Key === 'env'))) { return false }
-        return true
-      })
-        .map((g) => ({
-          org: find(g.Tags, (t) => (t.Key === 'org')).Value,
-          env: find(g.Tags, (t) => (t.Key === 'env')).Value,
-          ...g
-        }))
-        .filter((g) => (g.env === `production-${AWS_ENVIRONMENT}`))
+      return groups.map((g) => ({
+        org: find(g.Tags, (t) => (t.Key === 'org')).Value,
+        env: find(g.Tags, (t) => (t.Key === 'env')).Value,
+        ...g
+      }))
     })
-      .then(AWSClass._getGithubOrgForASGs)
+      .then((groups) => (AWSClass._getGithubOrgForASGs(groups, queryUser)))
       .then((groups) => {
         return groups.sort((a, b) => {
           if (a.githubOrganization < b.githubOrganization) { return -1 }
@@ -126,26 +122,66 @@ class AWSClass {
       })
   }
 
-  static listASGs () {
-    return Promise.resolve({ asgs: [] })
+  static getASGNamesForEnvironment () {
+    return Promise.resolve({ data: [] })
       .then(promiseWhile(
         (data) => (data.done),
         (data) => {
-          const opts = {}
+          const opts = {
+            Filters: [
+              {
+                Name: 'key',
+                Values: ['env']
+              }, {
+                Name: 'value',
+                Values: [`production-${AWS_ENVIRONMENT}`]
+              }
+            ],
+            MaxRecords: 25
+          }
           if (data.NextToken) { opts.NextToken = data.NextToken }
           return Promise.fromCallback((cb) => {
-            asg.describeAutoScalingGroups(opts, cb)
+            asg.describeTags(opts, cb)
           })
             .then((awsData) => {
-              Array.prototype.push.apply(data.asgs, awsData.AutoScalingGroups)
+              Array.prototype.push.apply(data.data, awsData.Tags)
               data.NextToken = awsData.NextToken
               data.done = !awsData.NextToken
               return data
             })
         }
       ))
-      .then((data) => (data.asgs))
-      .then(AWSClass._filterAndFormatASGs)
+      .then((data) => {
+        return data.data.map((d) => (d.ResourceId))
+      })
+  }
+
+  static listASGs (queryUser) {
+    return AWSClass.getASGNamesForEnvironment()
+      .then((names) => {
+        return Promise.resolve({ asgs: [] })
+          .then(promiseWhile(
+            (data) => (data.done),
+            (data) => {
+              const opts = {
+                AutoScalingGroupNames: names,
+                MaxRecords: 25
+              }
+              if (data.NextToken) { opts.NextToken = data.NextToken }
+              return Promise.fromCallback((cb) => {
+                asg.describeAutoScalingGroups(opts, cb)
+              })
+              .then((awsData) => {
+                Array.prototype.push.apply(data.asgs, awsData.AutoScalingGroups)
+                data.NextToken = awsData.NextToken
+                data.done = !awsData.NextToken
+                return data
+              })
+            }
+          ))
+          .then((data) => (data.asgs))
+      })
+      .then((asgs) => (AWSClass._formatAndSortASGs(asgs, queryUser)))
   }
 
   static getASGByName (name) {
@@ -161,7 +197,7 @@ class AWSClass {
         }
         return asgs.AutoScalingGroups
       })
-      .then(AWSClass._filterAndFormatASGs)
+      .then(AWSClass._formatAndSortASGs)
       .then((asgs) => (asgs.shift()))
   }
 

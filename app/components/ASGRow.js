@@ -104,11 +104,8 @@ class ASGRow extends React.Component {
 
   render () {
     const { asg } = this.props
-    const totalStateCode = asg.instances.reduce((t, c) => (t + c.stateCode), 0)
-    const avgStateCode = totalStateCode / asg.instanceCount
     const missingInstances = asg.desiredSize !== asg.instanceCount
-    const notAllRunning = asg.instanceCount > 0 && avgStateCode !== 16
-    const className = notAllRunning || missingInstances ? 'info' : ''
+    const className = missingInstances ? 'info' : ''
     return (
       <tr className={className}>
         <th scope='row'>{`${asg.organizationName} (${asg.organizationID})`}</th>
@@ -172,9 +169,6 @@ export default Relay.createContainer(
           organizationID
           organizationName
           instanceCount
-          instances {
-            stateCode
-          }
         }
       `
     }

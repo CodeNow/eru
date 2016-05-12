@@ -320,6 +320,10 @@ const runnableType = new GraphQLObjectType({
     domain: {
       type: new GraphQLNonNull(GraphQLString),
       resolve: () => (Runnable.DOMAIN)
+    },
+    userContentDomain: {
+      type: new GraphQLNonNull(GraphQLString),
+      resolve: () => (Runnable.USER_CONTENT_DOMAIN)
     }
   }),
   interfaces: [ nodeInterface ]

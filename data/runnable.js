@@ -17,7 +17,8 @@ const {
   MONGODB_PASSWORD,
   MONGODB_REPLSET,
   MONGODB_USERNAME,
-  RUNNABLE_DOMAIN
+  RUNNABLE_DOMAIN,
+  USER_CONTENT_DOMAIN
 } = process.env
 
 const USER_QUERY = {
@@ -46,6 +47,7 @@ const WHITELIST_SORT = {
 class RunnableClient {
   constructor () {
     this.DOMAIN = RUNNABLE_DOMAIN
+    this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
   }
 
   connect () {

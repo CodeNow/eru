@@ -1,6 +1,6 @@
 {
   "name": "eru",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "dependencies": {
     "101": {
       "version": "1.5.0",

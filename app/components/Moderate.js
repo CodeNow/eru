@@ -65,12 +65,14 @@ class Moderate extends React.Component {
   }
 
   render () {
+    const userContentDomain = this.props.runnable.userContentDomain
     const orgs = this.props.runnable.orgs.edges.map((e) => (e.node))
     const users = this.props.runnable.users
       ? this.props.runnable.users.edges.map((u) => (u.node))
       : []
     return (
       <div className='col-md-6'>
+        <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>
         <h4>User Moderation</h4>
         <p>
           These two lists are compiled using the following logic:
@@ -153,6 +155,7 @@ export default Relay.createContainer(
       runnable: () => Relay.QL`
         fragment on Runnable {
           domain
+          userContentDomain
           orgs(first: $pageSize) {
             edges {
               node {

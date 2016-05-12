@@ -65,13 +65,14 @@ class Moderate extends React.Component {
   }
 
   render () {
+    const userContentDomain = this.props.runnable.userContentDomain
     const orgs = this.props.runnable.orgs.edges.map((e) => (e.node))
     const users = this.props.runnable.users
       ? this.props.runnable.users.edges.map((u) => (u.node))
       : []
     return (
       <div className='col-md-6'>
-        <img src={this.props.runnable.userContentDomain + '/pixel.gif'} />
+        <img src={ 'https://blue.${userContentDomain}/pixel.gif' } />
         <h4>User Moderation</h4>
         <p>
           These two lists are compiled using the following logic:

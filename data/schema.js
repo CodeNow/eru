@@ -20,6 +20,7 @@ import {
   toGlobalId
 } from 'graphql-relay'
 import find from '101/find'
+import Promise from 'bluebird'
 
 import AWS from './aws'
 import Runnable from './runnable'
@@ -244,6 +245,22 @@ const awsType = new GraphQLObjectType({
     asgs: {
       type: new GraphQLList(asgType),
       resolve: ({ queryUser }) => (AWS.listASGs(queryUser))
+    },
+    nonWhitelistedASGs: {
+      type: new GraphQLList(asgType),
+      resolve: ({ queryUser }) => {
+        return Promise.props({
+          asgs: AWS.listASGs(queryUser),
+          orgs: Runnable.getWhitelistedOrgs(queryUser)
+        })
+          .then(({ asgs, orgs }) => {
+            const orgNames = orgs.map((o) => (o.lowerName))
+            return asgs.filter((asg) => {
+              return orgNames
+                .indexOf(asg.githubOrganization.toLowerCase()) === -1
+            })
+          })
+      }
     }
   })
 })
@@ -284,7 +301,7 @@ const runnableType = new GraphQLObjectType({
     },
     aws: {
       type: new GraphQLNonNull(awsType),
-      resolve: () => ({})
+      resolve: ({ queryUser }) => ({ queryUser })
     },
     orgs: {
       type: orgConnection,

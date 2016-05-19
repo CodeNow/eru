@@ -7,12 +7,17 @@ var compiler = webpack({
   entry: path.resolve(__dirname, '..', 'index-workers.js'),
   output: { filename: 'worker-server.bundle.js', path: path.resolve(__dirname, '..') },
   target: 'node',
-  externals: fs.readdirSync(path.resolve(__dirname, '../node_modules'))
-    .concat('@runnable/orion')
-    .reduce(function (ext, mod) {
-      ext[mod] = 'commonjs ' + mod
-      return ext
-    }, {}),
+  externals: [
+    getExternals(),
+    (ctx, req, cb) => {
+      if (/^error-cat\/errors\/.+$/.test(req)) {
+        return cb(null, `commonjs ${req}`)
+      } else if ('ponos/lib/rabbitmq' === req) {
+        return cb(null, `commonjs ${req}`)
+      }
+      return cb()
+    }
+  ],
   node: {
     __filename: true,
     __dirname: true
@@ -38,3 +43,13 @@ compiler.run((err, stats) => {
     }
   }
 })
+
+function getExternals () {
+  const opts = fs.readdirSync(path.resolve(__dirname, '../node_modules'))
+    .concat('@runnable/orion')
+    .reduce(function (ext, mod) {
+      ext[mod] = 'commonjs ' + mod
+      return ext
+    }, {})
+  return opts
+}

@@ -7,6 +7,7 @@ import EruHomeQuery from './queries/EruHomeQuery'
 import Loading from './components/Loading'
 import Services from './components/Services'
 import Users from './components/Users'
+import Org from './components/Org'
 import Welcome from './components/Welcome'
 
 export default (
@@ -36,6 +37,12 @@ export default (
       component={Users}
       queries={EruHomeQuery}
       render={({ props }) => (props ? <Users {...props} /> : <Loading />)}
+    />
+    <Route 
+      path="org/:orgname" 
+      component={Org}
+      queries={EruHomeQuery}
+      render={({ props }) => (props ? <Org {...props} /> : <Loading />)}
     />
   </Route>
 )

@@ -4,3 +4,4 @@ schema.graphql
 schema.json
 test/fixtures/user-data.js
 public/js/app.js
+*.bundle.js

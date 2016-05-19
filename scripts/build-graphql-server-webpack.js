@@ -7,11 +7,7 @@ var compiler = webpack({
   entry: path.resolve(__dirname, '..', 'index-graphql.js'),
   output: { filename: 'graphql-server.bundle.js', path: path.resolve(__dirname, '..') },
   target: 'node',
-  externals: fs.readdirSync(path.resolve(__dirname, '../node_modules'))
-    .reduce(function (ext, mod) {
-      ext[mod] = 'commonjs ' + mod
-      return ext
-    }, {}),
+  externals: getExternals(),
   node: {
     __filename: true,
     __dirname: true
@@ -37,3 +33,13 @@ compiler.run((err, stats) => {
     }
   }
 })
+
+function getExternals () {
+  const obj = fs.readdirSync(path.resolve(__dirname, '../node_modules'))
+    .reduce(function (ext, mod) {
+      ext[mod] = 'commonjs ' + mod
+      return ext
+    }, {})
+  obj['../test/fixtures/user-data'] = {}
+  return obj
+}

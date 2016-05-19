@@ -262,10 +262,7 @@ class RunnableClient {
       github.orgs.get({ org: orgName }, cb)
     })
       .then((orgInfo) => {
-        if ('message' in orgInfo)
-          return null;  
-        else
-          return this.getKnownUsersForOrg(orgInfo.id)
+        return this.getKnownUsersForOrg(orgInfo.id)
       })
   }
 

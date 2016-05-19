@@ -4,9 +4,10 @@
   "description": "Administration panel for Runnable.io",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build:schema && npm run build:webpack && npm run build:app-server && npm run build:graphql-server && npm run build:worker-server",
+    "build": "npm run build:schema && npm run build:webpack && npm run build:app-server && npm run build:graphql-server && npm run build:worker-server && npm run build:schedule",
     "build:app-server": "babel-node ./scripts/build-app-server-webpack.js",
     "build:graphql-server": "babel-node ./scripts/build-graphql-server-webpack.js",
+    "build:schedule": "babel-node ./scripts/build-schedule-webpack.js",
     "build:schema": "babel-node ./scripts/update-schema.js",
     "build:webpack": "babel-node ./scripts/build-webpack.js",
     "build:worker-server": "babel-node ./scripts/build-worker-server-webpack.js",
@@ -16,6 +17,7 @@
     "start:dev-server": "NODE_ENV=development babel-node ./lib/dev-server.js",
     "start:dev-services": "./scripts/start-eru-services.sh",
     "start:graphql-server": "node ./graphql-server.bundle.js",
+    "start:schedule": "node ./schedule.bundle.js",
     "start:worker-server": "node ./worker-server.bundle.js",
     "test": "standard --verbose"
   },

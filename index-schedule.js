@@ -7,7 +7,7 @@ import Promise from 'bluebird'
 
 const intercomSyncRule = new schedule.RecurrenceRule()
 
-const intercomJob = schedule.scheduleJob(intercomSyncRule, () => {
+schedule.scheduleJob(intercomSyncRule, () => {
   return Promise.using(getRabbitMQClient(), (rabbit) => (
     rabbit.publishToQueue('eru.intercom.companies.fetch', {})
   ))

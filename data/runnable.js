@@ -172,7 +172,9 @@ class RunnableClient {
   }
 
   getWhitelistedOrgs (queryUser) {
-    const github = tokenClientFactory(queryUser.accessToken)
+    const github = queryUser && queryUser.accessToken
+      ? tokenClientFactory(queryUser.accessToken)
+      : appClientFactory()
     return Promise.fromCallback((cb) => {
       this.db.collection('userwhitelists')
         .find(WHITELIST_QUERY, WHITELIST_FIELDS)

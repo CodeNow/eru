@@ -72,7 +72,7 @@ class Moderate extends React.Component {
       : []
     return (
       <div className='col-md-6'>
-        <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>
+        <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}} />
         <h4>User Moderation</h4>
         <p>
           These two lists are compiled using the following logic:

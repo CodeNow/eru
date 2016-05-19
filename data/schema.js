@@ -305,12 +305,18 @@ const runnableType = new GraphQLObjectType({
           type: GraphQLInt,
           description: 'Github Organization ID.'
         },
+        orgName: {
+          type: GraphQLString,
+          description: 'Github Organization Name'
+        },
         ...connectionArgs
       },
       resolve: (_, args) => {
         let users
         if (args.orgID) {
           users = Runnable.getKnownUsersForOrg(args.orgID)
+        } else if (args.orgName) {
+          users = Runnable.getKnownUsersFromOrgName(args.orgName)
         } else {
           users = Runnable.getUsers()
         }

@@ -65,6 +65,8 @@ class Org extends React.Component {
       ? this.props.runnable.users.edges.map((u) => (u.node))
       : []
 
+    console.log(users);
+
     if (users.length > 0 ) {
       let user = users[0]
       return (
@@ -93,7 +95,6 @@ export default Relay.createContainer(
   {
     initialVariables: {
       pageSize: 1,
-      showUsers: false,
       orgName: null
     },
     fragments: {

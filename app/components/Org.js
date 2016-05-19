@@ -17,7 +17,7 @@ class Org extends React.Component {
   }
 
   componentDidMount () {
-    // this._handleClick()
+    this._handleClick()
   }
 
   _handleClick () {
@@ -66,25 +66,14 @@ class Org extends React.Component {
       : []
 
     if (users.length > 0 ) {
+      let user = users[0]
       return (
         <div className='col-md-6'>
           <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>
-          <h4>{this.props.params.orgname}</h4>
-            <ul>
-            {
-              users.map((u) => (
-                <li
-                  key={u.id}
-                  value={u.githubUsername}
-                >
-                  {u.githubUsername}
-                </li>
-              ))
-            }
-            </ul>
-            <button className='btn btn-default' onClick={this._handleClick.bind(this)}>
-              Moderate
-            </button>
+          <h2>{this.props.params.orgname}</h2>
+          <button className='btn btn-default' onClick={this._handleClick.bind(this)}>
+            Moderate
+          </button>
         </div>
       )   
     } else {

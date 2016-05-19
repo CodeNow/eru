@@ -12,7 +12,7 @@ var compiler = webpack({
     (ctx, req, cb) => {
       if (/^error-cat\/errors\/.+$/.test(req)) {
         return cb(null, `commonjs ${req}`)
-      } else if ('ponos/lib/rabbitmq' === req) {
+      } else if (req === 'ponos/lib/rabbitmq') {
         return cb(null, `commonjs ${req}`)
       }
       return cb()

@@ -9,7 +9,7 @@ import Promise from 'bluebird'
 
 import CacheLayer from './cache-layer'
 
-const cacheLayer = new CacheLayer()
+let cacheLayer
 const keypather = Keypather()
 
 export function tokenClientFactory (token) {
@@ -50,6 +50,7 @@ export function appClientFactory () {
 }
 
 function extendGithubWithCacheFunction (github, clientKey) {
+  if (!cacheLayer) { cacheLayer = new CacheLayer() }
   github.clientKey = clientKey
   github.runThroughCache = Promise.method((method, options) => {
     const fn = keypather.get(github, method)

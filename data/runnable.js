@@ -144,9 +144,7 @@ class RunnableClient {
 
   getWhitelistedOrgByName (orgName) {
     const github = appClientFactory()
-    return Promise.fromCallback((cb) => {
-      github.orgs.get({ org: orgName }, cb)
-    })
+    return github.runThroughCache('orgs.get', { org: orgName })
       .then((orgInfo) => {
         return this.getWhitelistedOrgByID(orgInfo.id)
       })
@@ -155,9 +153,7 @@ class RunnableClient {
   getWhitelistedOrgByID (id) {
     const intID = parseInt(id, 10)
     const github = appClientFactory()
-    return Promise.fromCallback((cb) => {
-      github.users.getById({ id }, cb)
-    })
+    return github.runThroughCache('users.getById', { id })
       .then((githubInfo) => {
         const query = {
           lowerName: githubInfo.login.toLowerCase(),
@@ -182,9 +178,7 @@ class RunnableClient {
         .toArray(cb)
     })
       .map((org) => {
-        return Promise.fromCallback((cb) => {
-          github.orgs.get({ org: org.lowerName }, cb)
-        })
+        return github.runThroughCache('orgs.get', { org: org.lowerName })
           .then((info) => {
             return {
               id: info.id,

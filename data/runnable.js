@@ -96,7 +96,8 @@ class RunnableClient {
         const insertQuery = {
           name: orgInfo.login,
           lowerName: orgInfo.login.toLowerCase(),
-          allowed: !!allowed
+          allowed: !!allowed,
+          githubId: orgInfo.id
         }
         return Promise.fromCallback((cb) => {
           this.db.collection('userwhitelists')

@@ -1,4 +1,3 @@
-import envIs from '101/env-is'
 import React from 'react'
 import Relay from 'react-relay'
 import { Link } from 'react-router'

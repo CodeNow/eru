@@ -1,3 +1,4 @@
+import envIs from '101/env-is'
 import React from 'react'
 import Relay from 'react-relay'
 import { Link } from 'react-router'
@@ -30,9 +31,19 @@ class Eru extends React.Component {
   }
 
   render () {
+    // make navbar read if we are looking at production
+    const navbarStyle = {}
+    let navbarClasses = 'navbar navbar-inverse navbar-fixed-top'
+    if (process.env.NODE_ENV === 'production') {
+      navbarStyle.backgroundColor = '#d9534f'
+      navbarClasses = 'navbar navbar-fixed-top'
+    }
     return (
       <div>
-        <nav className='navbar navbar-inverse navbar-fixed-top'>
+        <nav
+          className={navbarClasses}
+          style={navbarStyle}
+        >
           <div className='container-fluid'>
             <div className='navbar-header'>
               <Link to='/app' className='navbar-brand'>Eru</Link>

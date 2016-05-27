@@ -30,9 +30,20 @@ class Eru extends React.Component {
   }
 
   render () {
+    const { domain } = this.props.runnable
+    // make navbar read if we are looking at production
+    const navbarStyle = {}
+    let navbarClasses = 'navbar navbar-inverse navbar-fixed-top'
+    if (domain === 'runnable.io') {
+      navbarStyle.backgroundColor = '#d9534f'
+      navbarClasses = 'navbar navbar-fixed-top'
+    }
     return (
       <div>
-        <nav className='navbar navbar-inverse navbar-fixed-top'>
+        <nav
+          className={navbarClasses}
+          style={navbarStyle}
+        >
           <div className='container-fluid'>
             <div className='navbar-header'>
               <Link to='/app' className='navbar-brand'>Eru</Link>
@@ -47,6 +58,11 @@ class Eru extends React.Component {
               <NavLink to='/app/users'>
                 Users <span></span>
               </NavLink>
+            </ul>
+            <ul className='nav navbar-nav navbar-right'>
+              <li>
+                <Link to='/app'>Environment: {domain}</Link>
+              </li>
             </ul>
           </div>
         </nav>
@@ -72,6 +88,7 @@ export default Relay.createContainer(
     fragments: {
       runnable: () => Relay.QL`
         fragment on Runnable {
+          domain
           services { id }
         }
       `

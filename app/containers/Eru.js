@@ -59,6 +59,11 @@ class Eru extends React.Component {
                 Users <span></span>
               </NavLink>
             </ul>
+            <ul className='nav navbar-nav navbar-right'>
+              <li>
+                <Link to='/app'>Environment: {process.env.NODE_ENV}</Link>
+              </li>
+            </ul>
           </div>
         </nav>
         <div className='container-fluid'>

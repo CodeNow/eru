@@ -1,9 +1,12 @@
+import loadenv from 'loadenv'
+loadenv({})
+
 import ES6Error from 'es6-error'
 import moment from 'moment'
 
 import { createRedisClient } from '../lib/models/redis'
 
-const DEFAULT_TTL = 1 * 60 // 1 minute, good for testing.
+const DEFAULT_TTL = process.env.CACHE_DEFAULT_TTL_SECONDS
 
 class CacheInvalidError extends ES6Error {}
 
@@ -13,8 +16,13 @@ class CacheLayer {
     this.CACHE_PREFIX = 'eruCache::'
   }
 
+  _resetTTLForKey (key, ttl) {
+    key = `${this.CACHE_PREFIX}::${key}`
+    return this.redisClient.expireAsync(key, ttl || DEFAULT_TTL)
+  }
+
   _getKeyFromCache (key) {
-    key = `eruCache::${key}`
+    key = `${this.CACHE_PREFIX}::${key}`
     return this.redisClient.getAsync(key)
       .then((value) => {
         if (!value) {
@@ -25,8 +33,8 @@ class CacheLayer {
   }
 
   _setKeyInCache (key, value, ttl) {
-    key = `eruCache::${key}`
-    return this.redisClient.setexAsync(key, ttl || DEFAULT_TTL, value)
+    key = `${this.CACHE_PREFIX}::${key}`
+    return this.redisClient.setexAsync(key, ttl || DEFAULT_TTL, JSON.stringify(value))
   }
 
   runAgainstCache (key, promiseMethod) {
@@ -34,7 +42,7 @@ class CacheLayer {
       .catch(CacheInvalidError, () => {
         const newData = promiseMethod()
         newData.then((data) => {
-          this._setKeyInCache(key, JSON.stringify(data))
+          this._setKeyInCache(key, data)
         })
         return newData
       })
@@ -81,5 +89,7 @@ class CacheLayer {
       })
   }
 }
+
+CacheLayer.CacheInvalidError = CacheInvalidError
 
 export default CacheLayer

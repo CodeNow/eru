@@ -85,16 +85,15 @@ class AWSClass {
       ? tokenClientFactory(queryUser.accessToken)
       : appClientFactory()
     return Promise.map(groups, (g) => {
-      return Promise.fromCallback((cb) => {
-        github.users.getById({ id: g.org }, cb)
-      })
+      return github.runThroughCache('users.getById', { id: g.org })
         .then((githubInfo) => {
           return {
             githubOrganization: githubInfo.login,
             ...g
           }
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error(err.stack || err.message || err)
           console.error(`looking for org ${g.org} and did not find it`)
           return g
         })

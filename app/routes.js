@@ -2,7 +2,7 @@ import { IndexRoute, Route } from 'react-router'
 import React from 'react'
 
 import AWS from './components/AWS'
-import Eru from './containers/Eru'
+import Eru from './components/Eru'
 import EruHomeQuery from './queries/EruHomeQuery'
 import Loading from './components/Loading'
 import Services from './components/Services'

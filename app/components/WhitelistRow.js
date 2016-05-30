@@ -67,11 +67,21 @@ class WhitelistRow extends React.Component {
       organizationName={this.props.org.githubName}
     />
     const allowedDisplay = this.props.org.allowed ? 'Enabled' : 'Disabled'
+    const allowedButtonClass = this.props.org.allowed
+      ? 'btn btn-warning'
+      : 'btn btn-success'
+    const buttonLabel = this.props.org.allowed ? 'Disable' : 'Enable'
     return (
       <tr key={this.props.org.id}>
         <td>{this.props.org.githubName}</td>
         <td>{allowedDisplay}</td>
         <td>
+          <button
+            className={allowedButtonClass}
+            onClick={this._disableOrganization}
+          >
+            {buttonLabel}
+          </button>
           <button
             className='btn btn-danger'
             onClick={this._openModal}

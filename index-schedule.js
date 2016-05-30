@@ -6,6 +6,7 @@ import RabbitMQ from 'ponos/lib/rabbitmq'
 import Promise from 'bluebird'
 
 const intercomSyncRule = new schedule.RecurrenceRule()
+intercomSyncRule.minute = [ 0, 30 ]
 
 schedule.scheduleJob(intercomSyncRule, () => {
   return Promise.using(getRabbitMQClient(), (rabbit) => (

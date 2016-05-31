@@ -404,10 +404,6 @@ const WhitelistAdd = mutationWithClientMutationId({
   },
   mutateAndGetPayload: ({ name, allowed }, _, { rootValue: { queryUser } }) => {
     return Runnable.addOrgToWhitelist(name, allowed)
-      .then(({ id }) => {
-        return AWS.createAWSASGCluster(id)
-          .return({ id })
-      })
       .then(({ id }) => ({
         githubID: id,
         queryUser

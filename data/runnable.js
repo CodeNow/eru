@@ -1,8 +1,9 @@
 import loadenv from 'loadenv'
 loadenv()
 
-import Promise from 'bluebird'
 import MongoDB from 'mongodb'
+import Promise from 'bluebird'
+import RabbitMQ from 'ponos/lib/rabbitmq'
 
 import {
   appClientFactory,
@@ -48,6 +49,7 @@ class RunnableClient {
   constructor () {
     this.DOMAIN = RUNNABLE_DOMAIN
     this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
+    this.rabbitmq = new RabbitMQ({})
   }
 
   connect () {
@@ -66,6 +68,9 @@ class RunnableClient {
     return MongoClient.connectAsync(connString, connOpts)
       .then((db) => {
         this.db = db
+      })
+      .then(() => {
+        return this.rabbitmq.connect()
       })
   }
 
@@ -109,16 +114,42 @@ class RunnableClient {
             }
             return { id: orgInfo.id }
           })
+          .tap(() => (
+            this.rabbitmq.publishToExchange(
+              'eru.whitelist.organization.added',
+              '',
+              {
+                organizationID: orgInfo.id,
+                organizationName: orgInfo.login.toLowerCase()
+              }
+            )
+          ))
       })
   }
 
   updateOrgInWhitelist (orgName, allowed) {
-    const searchQuery = { lowerName: orgName.toLowerCase() }
+    const lowerOrgName = orgName.toLowerCase()
+    const searchQuery = { lowerName: lowerOrgName }
     const update = { $set: { allowed: !!allowed } }
     return Promise.fromCallback((cb) => {
       this.db.collection('userwhitelists')
         .findOneAndUpdate(searchQuery, update, cb)
     })
+      .then(() => {
+        if (allowed) {
+          return this.rabbitmq.publishToExchange(
+            'eru.whitelist.organization.allowed',
+            '',
+            { organization: lowerOrgName }
+          )
+        } else {
+          return this.rabbitmq.publishToExchange(
+            'eru.whitelist.organization.disallowed',
+            '',
+            { organization: lowerOrgName }
+          )
+        }
+      })
   }
 
   removeOrgFromWhitelist (orgName) {
@@ -140,6 +171,13 @@ class RunnableClient {
             }
             return { id: orgInfo.id }
           })
+          .tap(() => (
+            this.rabbitmq.publishToExchange(
+              'eru.whitelist.organization.removed',
+              '',
+              { organization: orgInfo.login.toLowerCase() }
+            )
+          ))
       })
   }
 

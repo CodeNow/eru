@@ -7,7 +7,17 @@ var compiler = webpack({
   entry: path.resolve(__dirname, '..', 'index-graphql.js'),
   output: { filename: 'graphql-server.bundle.js', path: path.resolve(__dirname, '..') },
   target: 'node',
-  externals: getExternals(),
+  externals: [
+    getExternals(),
+    (ctx, req, cb) => {
+      if (/^error-cat\/errors\/.+$/.test(req)) {
+        return cb(null, `commonjs ${req}`)
+      } else if (req === 'ponos/lib/rabbitmq') {
+        return cb(null, `commonjs ${req}`)
+      }
+      return cb()
+    }
+  ],
   node: {
     __filename: true,
     __dirname: true

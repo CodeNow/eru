@@ -3,6 +3,8 @@ loadenv({})
 
 import ES6Error from 'es6-error'
 import moment from 'moment'
+import immutable from 'immutable'
+import Promise from 'bluebird'
 
 import { createRedisClient } from '../lib/models/redis'
 
@@ -12,8 +14,14 @@ class CacheInvalidError extends ES6Error {}
 
 class CacheLayer {
   constructor () {
-    this.redisClient = createRedisClient()
     this.CACHE_PREFIX = 'eruCache::'
+    this.inflight = new immutable.Map()
+  }
+
+  connect () {
+    return Promise.try(() => {
+      this.redisClient = createRedisClient()
+    })
   }
 
   _resetTTLForKey (key, ttl) {
@@ -26,7 +34,7 @@ class CacheLayer {
     return this.redisClient.getAsync(key)
       .then((value) => {
         if (!value) {
-          throw new CacheInvalidError()
+          return null
         }
         return JSON.parse(value)
       })
@@ -39,12 +47,40 @@ class CacheLayer {
 
   runAgainstCache (key, promiseMethod) {
     return this._getKeyFromCache(key)
-      .catch(CacheInvalidError, () => {
-        const newData = promiseMethod()
-        newData.then((data) => {
-          this._setKeyInCache(key, data)
-        })
-        return newData
+      .then((data) => {
+        let dataPromise
+        let refreshCache = false
+        if (data) {
+          console.log('we got cached data!')
+          dataPromise = Promise.resolve(data)
+          refreshCache = true
+        } else {
+          console.log('we need to fetch data')
+          // if we don't have an inflight request, we need one
+          if (!this.inflight.has(key)) {
+            console.log('we need to create a request for the data')
+            this.inflight = this.inflight.set(key, promiseMethod())
+            refreshCache = true
+          } else {
+            console.log('there is already a request inflight')
+          }
+          dataPromise = this.inflight.get(key)
+        }
+        if (refreshCache) {
+          console.log('we are going to refresh the data in the background')
+          let refreshData = dataPromise
+          if (!this.inflight.has(key)) {
+            console.log('we need to create a request for the background refresh')
+            this.inflight = this.inflight.set(key, promiseMethod())
+            refreshData = this.inflight.get(key)
+          }
+          refreshData
+            .then((data) => (this._setKeyInCache(key, data)))
+            .then(() => {
+              this.inflight = this.inflight.delete(key)
+            })
+        }
+        return dataPromise
       })
   }
 
@@ -90,6 +126,7 @@ class CacheLayer {
   }
 }
 
-CacheLayer.CacheInvalidError = CacheInvalidError
+const cache = new CacheLayer()
+cache.CacheInvalidError = CacheInvalidError
 
-export default CacheLayer
+export default cache

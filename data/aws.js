@@ -160,8 +160,6 @@ class AWSClass {
   static listASGs (queryUser) {
     return AWSClass.getASGNamesForEnvironment()
       .then((names) => {
-        // check for each name in the cache, batching the ones we don't have
-        // get the information for ones we do not have, append to previous list
         const pageSize = 50
         return Promise.resolve({ names: names, asgs: [] })
           .then(promiseWhile(

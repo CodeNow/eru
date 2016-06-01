@@ -8,7 +8,7 @@ import moment from 'moment'
 import Promise from 'bluebird'
 
 import { appClientFactory, tokenClientFactory } from './github'
-import CacheLayer from './cache-layer'
+import cacheLayer from './cache-layer'
 import promiseWhile from '../lib/utils/promise-while'
 import RabbitMQ from '../lib/models/rabbitmq'
 
@@ -122,41 +122,46 @@ class AWSClass {
   }
 
   static getASGNamesForEnvironment () {
-    return Promise.resolve({ data: [] })
-      .then(promiseWhile(
-        (data) => (data.done),
-        (data) => {
-          const opts = {
-            Filters: [
-              {
-                Name: 'key',
-                Values: ['env']
-              }, {
-                Name: 'value',
-                Values: [`production-${AWS_ENVIRONMENT}`]
+    return cacheLayer.runAgainstCache(
+      'aws-asg-names-for-environment',
+      () => {
+        return Promise.resolve({ data: [] })
+          .then(promiseWhile(
+            (data) => (data.done),
+            (data) => {
+              const opts = {
+                Filters: [
+                  {
+                    Name: 'key',
+                    Values: ['env']
+                  }, {
+                    Name: 'value',
+                    Values: [`production-${AWS_ENVIRONMENT}`]
+                  }
+                ]
               }
-            ]
-          }
-          if (data.NextToken) { opts.NextToken = data.NextToken }
-          return Promise.fromCallback((cb) => {
-            asg.describeTags(opts, cb)
-          })
-            .then((awsData) => {
-              Array.prototype.push.apply(data.data, awsData.Tags)
-              data.NextToken = awsData.NextToken
-              data.done = !awsData.NextToken
-              return data
-            })
-        }
-      ))
-      .then((data) => {
-        return data.data.map((d) => (d.ResourceId))
-      })
+              if (data.NextToken) { opts.NextToken = data.NextToken }
+              return Promise.fromCallback((cb) => {
+                asg.describeTags(opts, cb)
+              })
+              .then((awsData) => {
+                Array.prototype.push.apply(data.data, awsData.Tags)
+                data.NextToken = awsData.NextToken
+                data.done = !awsData.NextToken
+                return data
+              })
+            }
+          ))
+          .then(({ data }) => (data.map((d) => (d.ResourceId))))
+      }
+    )
   }
 
   static listASGs (queryUser) {
     return AWSClass.getASGNamesForEnvironment()
       .then((names) => {
+        // check for each name in the cache, batching the ones we don't have
+        // get the information for ones we do not have, append to previous list
         const pageSize = 50
         return Promise.resolve({ names: names, asgs: [] })
           .then(promiseWhile(
@@ -342,7 +347,6 @@ class AWSClass {
       ],
       Unit: 'Percent'
     }
-    const cacheLayer = new CacheLayer()
     return cacheLayer.getTimestampedData(orgID, startTime, endTime)
       .then((cachedData) => {
         if (cachedData.length === NUM_DATAPOINTS) {

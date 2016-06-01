@@ -7,9 +7,8 @@ import Keypather from 'keypather'
 import Github from 'github4'
 import Promise from 'bluebird'
 
-import CacheLayer from './cache-layer'
+import cacheLayer from './cache-layer'
 
-let cacheLayer
 const keypather = Keypather()
 
 export function tokenClientFactory (token) {
@@ -50,7 +49,6 @@ export function appClientFactory () {
 }
 
 function extendGithubWithCacheFunction (github, clientKey) {
-  if (!cacheLayer) { cacheLayer = new CacheLayer() }
   github.clientKey = clientKey
   github.runThroughCache = Promise.method((method, options) => {
     const fn = keypather.get(github, method)
@@ -62,13 +60,11 @@ function extendGithubWithCacheFunction (github, clientKey) {
     const optionsHash = hash.digest('base64')
     const etagKey = `${github.clientKey}:${method}:::${optionsHash}`
     return cacheLayer._getKeyFromCache(etagKey)
-      .catch(CacheLayer.CacheInvalidError, () => {
+      .catch(cacheLayer.CacheInvalidError, () => {
         console.warn('data was not in the cache')
       })
       .then((etag) => {
-        console.log(`trying to get the cached data ${etag}`)
         if (!etag) {
-          console.log('getting the data from the server')
           const dataPromise = Promise.fromCallback((cb) => { fn(options, cb) })
           dataPromise.then((result) => {
             const valueKey = `${github.clientKey}:` +
@@ -81,10 +77,8 @@ function extendGithubWithCacheFunction (github, clientKey) {
           return dataPromise
         } else {
           const valueKey = `${github.clientKey}:${method}:::${etag}`
-          console.log('getting data from cache')
           const dataPromise = cacheLayer._getKeyFromCache(valueKey)
           dataPromise.then(() => {
-            console.log('fetching to update cache')
             if (!options.headers) { options.headers = {} }
             options.headers['If-None-Match'] = etag
             return Promise.fromCallback((cb) => { fn(options, cb) })

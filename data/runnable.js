@@ -1,8 +1,9 @@
 import loadenv from 'loadenv'
 loadenv()
 
-import Promise from 'bluebird'
 import MongoDB from 'mongodb'
+import Promise from 'bluebird'
+import RabbitMQ from 'ponos/lib/rabbitmq'
 
 import {
   appClientFactory,
@@ -48,6 +49,7 @@ class RunnableClient {
   constructor () {
     this.DOMAIN = RUNNABLE_DOMAIN
     this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
+    this.rabbitmq = new RabbitMQ({})
   }
 
   connect () {
@@ -66,6 +68,9 @@ class RunnableClient {
     return MongoClient.connectAsync(connString, connOpts)
       .then((db) => {
         this.db = db
+      })
+      .then(() => {
+        return this.rabbitmq.connect()
       })
   }
 
@@ -96,7 +101,8 @@ class RunnableClient {
         const insertQuery = {
           name: orgInfo.login,
           lowerName: orgInfo.login.toLowerCase(),
-          allowed: !!allowed
+          allowed: !!allowed,
+          githubId: orgInfo.id
         }
         return Promise.fromCallback((cb) => {
           this.db.collection('userwhitelists')
@@ -108,16 +114,42 @@ class RunnableClient {
             }
             return { id: orgInfo.id }
           })
+          .tap(() => (
+            this.rabbitmq.publishToExchange(
+              'eru.whitelist.organization.added',
+              '',
+              {
+                organizationID: orgInfo.id,
+                organizationName: orgInfo.login.toLowerCase()
+              }
+            )
+          ))
       })
   }
 
   updateOrgInWhitelist (orgName, allowed) {
-    const searchQuery = { lowerName: orgName.toLowerCase() }
+    const lowerOrgName = orgName.toLowerCase()
+    const searchQuery = { lowerName: lowerOrgName }
     const update = { $set: { allowed: !!allowed } }
     return Promise.fromCallback((cb) => {
       this.db.collection('userwhitelists')
         .findOneAndUpdate(searchQuery, update, cb)
     })
+      .then(() => {
+        if (allowed) {
+          return this.rabbitmq.publishToExchange(
+            'eru.whitelist.organization.allowed',
+            '',
+            { organizationName: lowerOrgName }
+          )
+        } else {
+          return this.rabbitmq.publishToExchange(
+            'eru.whitelist.organization.disallowed',
+            '',
+            { organizationName: lowerOrgName }
+          )
+        }
+      })
   }
 
   removeOrgFromWhitelist (orgName) {
@@ -139,14 +171,19 @@ class RunnableClient {
             }
             return { id: orgInfo.id }
           })
+          .tap(() => (
+            this.rabbitmq.publishToExchange(
+              'eru.whitelist.organization.removed',
+              '',
+              { organizationName: orgInfo.login.toLowerCase() }
+            )
+          ))
       })
   }
 
   getWhitelistedOrgByName (orgName) {
     const github = appClientFactory()
-    return Promise.fromCallback((cb) => {
-      github.orgs.get({ org: orgName }, cb)
-    })
+    return github.runThroughCache('orgs.get', { org: orgName })
       .then((orgInfo) => {
         return this.getWhitelistedOrgByID(orgInfo.id)
       })
@@ -155,9 +192,7 @@ class RunnableClient {
   getWhitelistedOrgByID (id) {
     const intID = parseInt(id, 10)
     const github = appClientFactory()
-    return Promise.fromCallback((cb) => {
-      github.users.getById({ id }, cb)
-    })
+    return github.runThroughCache('users.getById', { id })
       .then((githubInfo) => {
         const query = {
           lowerName: githubInfo.login.toLowerCase(),
@@ -172,7 +207,9 @@ class RunnableClient {
   }
 
   getWhitelistedOrgs (queryUser) {
-    const github = tokenClientFactory(queryUser.accessToken)
+    const github = queryUser && queryUser.accessToken
+      ? tokenClientFactory(queryUser.accessToken)
+      : appClientFactory()
     return Promise.fromCallback((cb) => {
       this.db.collection('userwhitelists')
         .find(WHITELIST_QUERY, WHITELIST_FIELDS)
@@ -180,9 +217,7 @@ class RunnableClient {
         .toArray(cb)
     })
       .map((org) => {
-        return Promise.fromCallback((cb) => {
-          github.orgs.get({ org: org.lowerName }, cb)
-        })
+        return github.runThroughCache('orgs.get', { org: org.lowerName })
           .then((info) => {
             return {
               id: info.id,

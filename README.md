@@ -36,7 +36,7 @@ This project _does_ have an `npm-shrinkwrap.json` file to maintain consistency
 In order to make everything function correctly, it is required that you provide a stub of your GitHub user to the development server. This stub is located in `test/fixtures/user-data.js`, and should include the following:
 
 ```javascript
-export default {
+module.exports = {
   id: githubID, // an integer
   username: 'githubUsername',
   accessToken: 'accessToken' // GitHub token w/ org:read access

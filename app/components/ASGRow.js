@@ -4,29 +4,14 @@ import Relay from 'react-relay'
 import ASGScaleInMutation from '../mutations/ASGScaleIn'
 import ASGScaleMutation from '../mutations/ASGScale'
 import MemoryGraph from './MemoryGraph'
-import Modal from './Modal'
-
-class DisableASGModalBody extends React.Component {
-  static propTypes = {
-    organizationName: React.PropTypes.string.isRequired
-  }
-
-  render () {
-    return (
-      <p>
-        Please confirm you would like to disable the organization {this.props.organizationName}.
-      </p>
-    )
-  }
-}
 
 class ASGRow extends React.Component {
   static propTypes = {
     alertMessage: React.PropTypes.func.isRequired,
-    asg: React.PropTypes.object
+    asg: React.PropTypes.object.isRequired
   }
 
-  _alertError = (prefix) => {
+  _alertErrorWithPrefix = (prefix) => {
     return (transaction) => {
       const error = transaction.getError() || new Error('Mutation Failed')
       console.error(error)
@@ -46,7 +31,7 @@ class ASGRow extends React.Component {
     }
   }
 
-  _alertSuccess = (message) => {
+  _alertSuccessWithMessage = (message) => {
     return () => {
       this.props.alertMessage({
         level: 'success',
@@ -62,8 +47,8 @@ class ASGRow extends React.Component {
         amount: value
       }),
       {
-        onFailure: this._alertError('Failed to change ASG:'),
-        onSuccess: this._alertSuccess(
+        onFailure: this._alertErrorWithPrefix('Failed to change ASG:'),
+        onSuccess: this._alertSuccessWithMessage(
           `Changed ASG for ${this.props.asg.organizationName} (${this.props.asg.organizationID}) by ${value}`
         )
       }
@@ -81,25 +66,12 @@ class ASGRow extends React.Component {
         amount: -1
       }),
       {
-        onFailure: this._alertError('Failed to scale-in ASG:'),
-        onSuccess: this._alertSuccess(
+        onFailure: this._alertErrorWithPrefix('Failed to scale-in ASG:'),
+        onSuccess: this._alertSuccessWithMessage(
           `Scaled-in ASG for ${this.props.asg.organizationName} (${this.props.asg.organizationID}) by -1`
         )
       }
     )
-  }
-
-  _disableASG = () => {
-    this._changeASG(-1 * this.props.asg.desiredSize)
-    this._closeModal()
-  }
-
-  _openModal = () => {
-    this.setState({ open: true })
-  }
-
-  _closeModal = () => {
-    this.setState({ open: false })
   }
 
   render () {
@@ -126,26 +98,11 @@ class ASGRow extends React.Component {
           </button>
           <button
             className='btn btn-info'
-            disabled={asg.desiredSize === 0}
+            disabled={asg.desiredSize <= 1}
             onClick={this._decreaseASG}
           >
             Smaller!
           </button>
-          <button
-            className='btn btn-warning'
-            disabled={asg.desiredSize === 0}
-            onClick={this._openModal}
-          >
-            Disable!
-          </button>
-          <Modal
-            title='Confirm Disable'
-            body={<DisableASGModalBody organizationName={this.props.asg.organizationName} />}
-            confirmPrompt='Yup, Disable It!'
-            closeModal={this._closeModal}
-            confirmSuccess={this._disableASG}
-            open={this.state && this.state.open}
-          />
         </td>
       </tr>
     )

@@ -20,11 +20,12 @@ class Org extends React.Component {
     })
   }
 
-  componentDidMount () {
+  componentDidUpdate () {
     this._moderateUser()
   }
 
   _moderateUser() {
+    console.log(this.props.runnable)
     if (this.props.runnable.users) {
       const { domain } = this.props.runnable
       const users = this.props.runnable.users.edges.map((u) => (u.node))
@@ -104,7 +105,7 @@ export default Relay.createContainer(
   Org,
   {
     initialVariables: {
-      pageSize: 1,
+      pageSize: 1000,
       orgName: null,
       ready: false
     },

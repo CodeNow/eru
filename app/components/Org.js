@@ -73,9 +73,9 @@ class Org extends React.Component {
     const userContentDomain = this.props.runnable.userContentDomain
     const users = this.props.runnable.users
       ? this.props.runnable.users.edges.map((u) => (u.node))
-      : null
+      : []
 
-    if (users) {
+    if (users.length > 0) {
       return (
         <div className='col-md-6'>
           <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>

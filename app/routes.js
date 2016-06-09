@@ -38,8 +38,8 @@ export default (
       queries={EruHomeQuery}
       render={({ props }) => (props ? <Users {...props} /> : <Loading />)}
     />
-    <Route 
-      path="org/:orgname" 
+    <Route
+      path='org/:orgname'
       component={Org}
       queries={EruHomeQuery}
       render={({ props }) => (props ? <Org {...props} /> : <Loading />)}

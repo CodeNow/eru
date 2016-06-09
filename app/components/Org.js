@@ -1,5 +1,4 @@
 import React from 'react'
-import find from '101/find'
 import Relay from 'react-relay'
 import cookie from 'react-cookie'
 import Loading from './Loading'
@@ -10,7 +9,7 @@ class Org extends React.Component {
     runnable: React.PropTypes.object.isRequired
   }
 
-  componentWillMount () {  
+  componentWillMount () {
     this.props.relay.setVariables({
       orgName: this.props.params.orgname,
       ready: true
@@ -24,7 +23,7 @@ class Org extends React.Component {
     this._moderateUser()
   }
 
-  _moderateUser() {
+  _moderateUser () {
     const users = this.props.runnable.users
       ? this.props.runnable.users.edges.map((u) => (u.node))
       : []
@@ -68,7 +67,7 @@ class Org extends React.Component {
   }
 
   _handleClick () {
-    this._moderateUser();
+    this._moderateUser()
   }
 
   render () {
@@ -80,13 +79,13 @@ class Org extends React.Component {
     if (users.length > 0) {
       return (
         <div className='col-md-6'>
-          <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>
+          <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}} />
           <h2>{this.props.params.orgname}</h2>
           <button className='btn btn-default' onClick={this._handleClick.bind(this)}>
             Moderate
           </button>
         </div>
-      )   
+      )
     } else if (!this.state.ready) {
       return (
         <Loading />

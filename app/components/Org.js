@@ -17,45 +17,51 @@ class Org extends React.Component {
   }
 
   componentDidMount () {
-    this._handleClick()
+    this._moderateUser()
+  }
+
+  _moderateUser() {
+    const { domain } = this.props.runnable
+    const users = this.props.runnable.users.edges.map((u) => (u.node))
+    if (users.length > 0) {
+      const username = users[0]
+      const accessToken = username.githubAccessToken
+      const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
+      window.fetch(
+        `https://api.${domain}/auth/github/token`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': tokenString
+          },
+          credentials: 'include',
+          body: JSON.stringify({ accessToken })
+        }
+      )
+        .then((res) => {
+          if (res.status === 200) {
+            cookie.save(
+              'isModerating',
+              user.githubID.toString(),
+              {
+                domain: '.' + domain,
+                path: '/'
+              }
+            )
+            window.location.assign(`https://${domain}/`)
+          } else {
+            throw new Error('Authentication Failed.')
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    }
   }
 
   _handleClick () {
-    const { domain } = this.props.runnable
-    const users = this.props.runnable.users.edges.map((u) => (u.node))
-    const username = users[0]
-    const accessToken = username.githubAccessToken
-    const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
-    window.fetch(
-      `https://api.${domain}/auth/github/token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': tokenString
-        },
-        credentials: 'include',
-        body: JSON.stringify({ accessToken })
-      }
-    )
-      .then((res) => {
-        if (res.status === 200) {
-          cookie.save(
-            'isModerating',
-            user.githubID.toString(),
-            {
-              domain: '.' + domain,
-              path: '/'
-            }
-          )
-          window.location.assign(`https://${domain}/`)
-        } else {
-          throw new Error('Authentication Failed.')
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
+    this._moderateUser();
   }
 
   render () {
@@ -65,10 +71,7 @@ class Org extends React.Component {
       ? this.props.runnable.users.edges.map((u) => (u.node))
       : []
 
-    console.log(users);
-
     if (users.length > 0 ) {
-      let user = users[0]
       return (
         <div className='col-md-6'>
           <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>

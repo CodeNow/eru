@@ -25,12 +25,14 @@ class Org extends React.Component {
   }
 
   _moderateUser() {
-    console.log(this.props.runnable)
-    if (this.props.runnable.users) {
+    const users = this.props.runnable.users
+      ? this.props.runnable.users.edges.map((u) => (u.node))
+      : []
+
+    if (users.length > 0) {
       const { domain } = this.props.runnable
-      const users = this.props.runnable.users.edges.map((u) => (u.node))
-      const username = users[0]
-      const accessToken = username.githubAccessToken
+      const user = users[0]
+      const accessToken = user.githubAccessToken
       const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
       window.fetch(
         `https://api.${domain}/auth/github/token`,
@@ -85,7 +87,7 @@ class Org extends React.Component {
           </button>
         </div>
       )   
-    } else if (this.state.ready) {
+    } else if (!this.state.ready) {
       return (
         <Loading />
       )
@@ -96,8 +98,6 @@ class Org extends React.Component {
         </div>
       )
     }
-
-
   }
 }
 

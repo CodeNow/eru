@@ -26,6 +26,7 @@ class Org extends React.Component {
     if (users.length > 0) {
       const username = users[0]
       const accessToken = username.githubAccessToken
+      console.log(users);
       const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
       window.fetch(
         `https://api.${domain}/auth/github/token`,

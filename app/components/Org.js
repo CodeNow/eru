@@ -2,7 +2,7 @@ import React from 'react'
 import find from '101/find'
 import Relay from 'react-relay'
 import cookie from 'react-cookie'
-
+import Loading from './Loading'
 
 class Org extends React.Component {
 
@@ -13,6 +13,10 @@ class Org extends React.Component {
   componentWillMount () {  
     this.props.relay.setVariables({
       orgName: this.props.params.orgname,
+      ready: true
+    })
+    this.setState({
+      ready: true
     })
   }
 
@@ -21,12 +25,11 @@ class Org extends React.Component {
   }
 
   _moderateUser() {
-    const { domain } = this.props.runnable
-    const users = this.props.runnable.users.edges.map((u) => (u.node))
-    if (users.length > 0) {
+    if (this.props.runnable.users) {
+      const { domain } = this.props.runnable
+      const users = this.props.runnable.users.edges.map((u) => (u.node))
       const username = users[0]
       const accessToken = username.githubAccessToken
-      console.log(users);
       const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
       window.fetch(
         `https://api.${domain}/auth/github/token`,
@@ -67,12 +70,11 @@ class Org extends React.Component {
 
   render () {
     const userContentDomain = this.props.runnable.userContentDomain
-
     const users = this.props.runnable.users
       ? this.props.runnable.users.edges.map((u) => (u.node))
-      : []
+      : null
 
-    if (users.length > 0 ) {
+    if (users) {
       return (
         <div className='col-md-6'>
           <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}}/>
@@ -82,10 +84,14 @@ class Org extends React.Component {
           </button>
         </div>
       )   
+    } else if (this.state.ready) {
+      return (
+        <Loading />
+      )
     } else {
       return (
         <div className='col-md-6'>
-          <p>Invalid organization.</p>
+          <h2>Invalid organization.</h2>
         </div>
       )
     }
@@ -99,14 +105,15 @@ export default Relay.createContainer(
   {
     initialVariables: {
       pageSize: 1,
-      orgName: null
+      orgName: null,
+      ready: false
     },
     fragments: {
       runnable: () => Relay.QL`
         fragment on Runnable {
           domain
           userContentDomain
-          users(first: $pageSize, orgName: $orgName) {
+          users(first: $pageSize, orgName: $orgName) @include(if: $ready) {
             edges {
               node {
                 id

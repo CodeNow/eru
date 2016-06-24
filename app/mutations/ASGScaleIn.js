@@ -15,8 +15,6 @@ class ASGScaleIn extends Relay.Mutation {
       fragment on ASGScaleInPayload {
         asg {
           desiredSize
-          minSize
-          maxSize
           instanceCount
           instances
         }

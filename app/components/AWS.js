@@ -22,9 +22,7 @@ class AWS extends React.Component {
             <thead>
               <tr>
                 <th>Organization ID</th>
-                <th>ASG Name</th>
                 <th>Launch Configuration Name</th>
-                <th>Created</th>
                 <th>Desired</th>
                 <th>Current</th>
                 <th>Swarm Reserved Memory</th>

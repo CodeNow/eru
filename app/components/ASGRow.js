@@ -81,9 +81,7 @@ class ASGRow extends React.Component {
     return (
       <tr className={className}>
         <th scope='row'>{`${asg.organizationName} (${asg.organizationID})`}</th>
-        <td>{asg.name}</td>
         <td>{asg.launchConfiguration}</td>
-        <td>{asg.created}</td>
         <td>{asg.desiredSize}</td>
         <td>{asg.instanceCount}</td>
         <td>

@@ -470,12 +470,6 @@ const ASGScale = mutationWithClientMutationId({
     },
     desiredSize: {
       type: new GraphQLNonNull(GraphQLInt)
-    },
-    minSize: {
-      type: GraphQLInt
-    },
-    maxSize: {
-      type: GraphQLInt
     }
   },
   outputFields: {
@@ -486,10 +480,10 @@ const ASGScale = mutationWithClientMutationId({
       }
     }
   },
-  mutateAndGetPayload: ({ name, desiredSize, minSize, maxSize }) => {
+  mutateAndGetPayload: ({ name, desiredSize }) => {
     return AWS.getASGByName(name)
       .then((asg) => {
-        return AWS.updateASG(asg, { name, desiredSize, minSize, maxSize })
+        return AWS.updateASG(asg, { name, desiredSize })
       })
       .return({ asgName: name })
   }

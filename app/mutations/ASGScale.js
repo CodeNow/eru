@@ -7,9 +7,7 @@ class ASGScale extends Relay.Mutation {
   getVariables () {
     return {
       name: this.props.asg.name,
-      desiredSize: this.props.asg.desiredSize + this.props.amount,
-      minSize: this.props.asg.minSize + this.props.amount,
-      maxSize: this.props.asg.maxSize + this.props.amount
+      desiredSize: this.props.asg.desiredSize + this.props.amount
     }
   }
   getFatQuery () {
@@ -17,8 +15,7 @@ class ASGScale extends Relay.Mutation {
       fragment on ASGScalePayload {
         asg {
           desiredSize
-          minSize
-          maxSize
+          instanceCount
         }
       }
     `
@@ -37,8 +34,6 @@ class ASGScale extends Relay.Mutation {
         id
         name
         desiredSize
-        minSize
-        maxSize
       }
     `
   };

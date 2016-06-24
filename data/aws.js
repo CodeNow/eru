@@ -3,6 +3,7 @@ loadenv()
 
 import assign from '101/assign'
 import AWS from 'aws-sdk'
+import exists from '101/exists'
 import find from '101/find'
 import moment from 'moment'
 import Promise from 'bluebird'
@@ -208,9 +209,15 @@ class AWSClass {
     const update = {
       AutoScalingGroupName: asgToUpdate.AutoScalingGroupName
     }
-    update.MaxSize = Math.max(0, maxSize)
-    update.MinSize = Math.max(0, minSize)
-    update.DesiredCapacity = Math.max(update.MinSize, desiredSize)
+    if (exists(maxSize)) {
+      update.MaxSize = maxSize
+    }
+    if (exists(minSize)) {
+      update.MinSize = minSize
+    }
+    if (exists(desiredSize)) {
+      update.DesiredCapacity = desiredSize
+    }
     return Promise.fromCallback((cb) => {
       asg.updateAutoScalingGroup(update, cb)
     })
@@ -218,28 +225,6 @@ class AWSClass {
 
   static scaleInASGByName (name, desiredSize) {
     return AWSClass.getASGByName(name)
-      .then((asgToUpdate) => {
-        desiredSize = Math.max(0, desiredSize)
-        if (desiredSize >= asgToUpdate.DesiredCapacity) {
-          throw new Error('must scale to lower capacity')
-        }
-        // if we are wanting smaller than the minimum, we need to bring the
-        // minimum down. we can bring the max down as well, but not below the
-        // current size.
-        const update = {
-          AutoScalingGroupName: asgToUpdate.AutoScalingGroupName
-        }
-        if (desiredSize < asgToUpdate.MinSize) {
-          update.MinSize = desiredSize
-        }
-        if (desiredSize < asgToUpdate.MaxSize) {
-          update.MaxSize = Math.max(desiredSize, asgToUpdate.DesiredCapacity)
-        }
-        return Promise.fromCallback((cb) => {
-          asg.updateAutoScalingGroup(update, cb)
-        })
-          .return(asgToUpdate)
-      })
       .then((asgToUpdate) => {
         if (asgToUpdate.Instances.length <= desiredSize) {
           throw new Error('there are already <= instances than the desired size')

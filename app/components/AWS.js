@@ -9,7 +9,7 @@ class AWS extends React.Component {
     alertMessage: React.PropTypes.func.isRequired
   }
 
-  constructor(...args) {
+  constructor (...args) {
     super(...args)
     this.state = { hideZeros: false }
   }
@@ -19,12 +19,8 @@ class AWS extends React.Component {
   }
 
   render () {
-    const {
-      alertMessage,
-    } = this.props
-    let {
-      runnable: { aws: { asgs } }
-    } = this.props
+    const { alertMessage } = this.props
+    let { runnable: { aws: { asgs } } } = this.props
     if (this.state.hideZeros) {
       asgs = asgs.filter((a) => (a.desiredSize))
     }
@@ -36,7 +32,7 @@ class AWS extends React.Component {
             className='btn btn-default'
             onClick={this._handleHideButtonPress}
           >
-            { (this.state.hideZeros ? 'Show' : 'Hide') + ' Empty ASGs' }
+            {(this.state.hideZeros ? 'Show' : 'Hide') + ' Empty ASGs'}
           </button>
           <table className='table table-striped table-condensed table-hover'>
             <thead>

@@ -13,7 +13,7 @@ class Moderate extends React.Component {
     const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
     if (this.props.runnable.users) {
       const users = this.props.runnable.users.edges.map((u) => (u.node))
-      const user = find(users, (u) => (u.githubUsername === username))
+      const user = username ? find(users, (u) => (u.githubUsername === username)) : users[0]
       const accessToken = user.githubAccessToken
       window.fetch(
         `https://api.${domain}/auth/github/token`,

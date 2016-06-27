@@ -1,7 +1,5 @@
-import find from '101/find'
 import React from 'react'
 import Relay from 'react-relay'
-import cookie from 'react-cookie'
 import Moderate from './Moderate'
 
 class ModerateUser extends Moderate {
@@ -13,7 +11,11 @@ class ModerateUser extends Moderate {
 
   handleSubmit (e) {
     e.preventDefault()
-    this.moderateUser()
+    if (!this.state || !this.state.username) {
+      console.warn('No username was selected.')
+      return
+    }
+    this.moderateUser(this.state.username.trim())
   }
 
   handleOrgSelect (e) {

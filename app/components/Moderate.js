@@ -8,47 +8,44 @@ class Moderate extends React.Component {
     runnable: React.PropTypes.object.isRequired
   }
 
-  moderateUser () {
+  moderateUser (username) {
     const { domain } = this.props.runnable
-    const users = this.props.runnable.users.edges.map((u) => (u.node))
-    if (!this.state || !this.state.username) {
-      console.warn('No username was selected.')
-      return
-    }
-    const username = this.state.username.trim()
-    const user = find(users, (u) => (u.githubUsername === username))
-    const accessToken = user.githubAccessToken
     const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
-    window.fetch(
-      `https://api.${domain}/auth/github/token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': tokenString
-        },
-        credentials: 'include',
-        body: JSON.stringify({ accessToken })
-      }
-    )
-      .then((res) => {
-        if (res.status === 200) {
-          cookie.save(
-            'isModerating',
-            user.githubID.toString(),
-            {
-              domain: '.' + domain,
-              path: '/'
-            }
-          )
-          window.location.assign(`https://${domain}/`)
-        } else {
-          throw new Error('Authentication Failed.')
+    if (this.props.runnable.users) {
+      const users = this.props.runnable.users.edges.map((u) => (u.node))
+      const user = find(users, (u) => (u.githubUsername === username))
+      const accessToken = user.githubAccessToken
+      window.fetch(
+        `https://api.${domain}/auth/github/token`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': tokenString
+          },
+          credentials: 'include',
+          body: JSON.stringify({ accessToken })
         }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
+      )
+        .then((res) => {
+          if (res.status === 200) {
+            cookie.save(
+              'isModerating',
+              user.githubID.toString(),
+              {
+                domain: '.' + domain,
+                path: '/'
+              }
+            )
+            window.location.assign(`https://${domain}/`)
+          } else {
+            throw new Error('Authentication Failed.')
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    } 
   }
 
 }

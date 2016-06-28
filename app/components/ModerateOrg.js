@@ -6,7 +6,7 @@ class ModerateOrg extends Moderate {
 
   componentWillMount () {
     this.props.relay.setVariables({
-      orgName: this.props.params.orgname
+      orgName: this.props.params.orgName
     }, readyState => {
       if (readyState.done || readyState.aborted) {
         let users = this.props.runnable.users.edges.map((u) => (u.node))

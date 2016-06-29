@@ -1,6 +1,5 @@
 import find from '101/find'
 import React from 'react'
-import Relay from 'react-relay'
 import cookie from 'react-cookie'
 
 class Moderate extends React.Component {
@@ -45,9 +44,8 @@ class Moderate extends React.Component {
         .catch((err) => {
           console.error(err)
         })
-    } 
+    }
   }
-
 }
 
 export default Moderate

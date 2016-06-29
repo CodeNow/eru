@@ -3,16 +3,15 @@ import React from 'react'
 import Relay from 'react-relay'
 
 class ModerateOrg extends Moderate {
-
   componentWillMount () {
     this.props.relay.setVariables({
       orgName: this.props.params.orgName
     }, readyState => {
       if (readyState.done || readyState.aborted) {
         let users = this.props.runnable.users.edges.map((u) => (u.node))
-        this.setState({users})
+        this.setState({ users })
       } else if (readyState.error) {
-        this.setState({error: readyState.error});
+        this.setState({ error: readyState.error })
       }
     })
   }
@@ -70,5 +69,3 @@ export default Relay.createContainer(
     }
   }
 )
-
-

@@ -1,8 +1,8 @@
-import Moderate from './Moderate'
+import moderateUser from '../utils/moderate-user'
 import React from 'react'
 import Relay from 'react-relay'
 
-class ModerateOrg extends Moderate {
+class ModerateOrg extends React.Component {
   constructor (...args) {
     super(...args)
     this.state = {}
@@ -23,7 +23,7 @@ class ModerateOrg extends Moderate {
 
   componentDidUpdate () {
     if (this.state.users) {
-      this.moderateUser(this.state.users[0], this.props.runnable.domain)
+      moderateUser(this.state.users[0], this.props.runnable.domain)
     }
   }
 

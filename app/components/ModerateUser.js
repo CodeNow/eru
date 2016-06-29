@@ -1,9 +1,9 @@
 import find from '101/find'
+import moderateUser from '../utils/moderate-user'
 import React from 'react'
 import Relay from 'react-relay'
-import Moderate from './Moderate'
 
-class ModerateUser extends Moderate {
+class ModerateUser extends React.Component {
   handleUserChange (e) {
     e.preventDefault()
     this.setState({ username: e.target.value })
@@ -18,7 +18,7 @@ class ModerateUser extends Moderate {
     const username = this.state.username.trim()
     const users = this.props.runnable.users.edges.map((u) => (u.node))
     const user = find(users, (u) => (u.githubUsername === username))
-    this.moderateUser(user, this.props.runnable.domain)
+    moderateUser(user, this.props.runnable.domain)
   }
 
   handleOrgSelect (e) {

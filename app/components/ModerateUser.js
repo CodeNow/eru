@@ -1,9 +1,9 @@
+import find from '101/find'
 import React from 'react'
 import Relay from 'react-relay'
 import Moderate from './Moderate'
 
 class ModerateUser extends Moderate {
-
   handleUserChange (e) {
     e.preventDefault()
     this.setState({ username: e.target.value })
@@ -15,7 +15,10 @@ class ModerateUser extends Moderate {
       console.warn('No username was selected.')
       return
     }
-    this.moderateUser(this.state.username.trim())
+    const username = this.state.username.trim()
+    const users = this.props.runnable.users.edges.map((u) => (u.node))
+    const user = find(users, (u) => (u.githubUsername === username))
+    this.moderateUser(user, this.props.runnable.domain)
   }
 
   handleOrgSelect (e) {
@@ -33,7 +36,10 @@ class ModerateUser extends Moderate {
       : []
     return (
       <div className='col-md-6'>
-        <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}} />
+        <img
+          src={`https://blue.${userContentDomain}/pixel.gif`}
+          style={{display: 'none'}}
+        />
         <h4>User Moderation</h4>
         <p>
           These two lists are compiled using the following logic:

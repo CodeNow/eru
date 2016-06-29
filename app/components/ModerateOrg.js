@@ -3,6 +3,11 @@ import React from 'react'
 import Relay from 'react-relay'
 
 class ModerateOrg extends Moderate {
+  constructor (...args) {
+    super(...args)
+    this.state = {}
+  }
+
   componentWillMount () {
     this.props.relay.setVariables({
       orgName: this.props.params.orgName
@@ -17,19 +22,27 @@ class ModerateOrg extends Moderate {
   }
 
   componentDidUpdate () {
-    if (this.state && this.state.users) {
-      this.moderateUser()
+    if (this.state.users) {
+      this.moderateUser(this.state.users[0], this.props.runnable.domain)
     }
   }
 
   render () {
-    const userContentDomain = this.props.runnable.userContentDomain
+    const {
+      runnable: {
+        userContentDomain
+      },
+      orgName
+    } = this.props
 
-    if (!this.state || this.state.users) {
+    if (this.state.users) {
       return (
         <div className='col-md-6'>
-          <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}} />
-          <h2>Attempting to moderate: {this.props.params.orgName}</h2>
+          <img
+            src={`https://blue.${userContentDomain}/pixel.gif`}
+            style={{display: 'none'}}
+          />
+          <h2>Attempting to moderate: {orgName}</h2>
         </div>
       )
     } else {

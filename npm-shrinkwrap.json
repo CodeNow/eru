@@ -1135,154 +1135,9 @@
       "resolved": "https://registry.npmjs.org/d/-/d-0.1.1.tgz"
     },
     "d3": {
-      "version": "4.0.0",
-      "from": "d3@latest",
-      "resolved": "https://registry.npmjs.org/d3/-/d3-4.0.0.tgz"
-    },
-    "d3-array": {
-      "version": "1.0.0",
-      "from": "d3-array@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-array/-/d3-array-1.0.0.tgz"
-    },
-    "d3-axis": {
-      "version": "1.0.0",
-      "from": "d3-axis@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-axis/-/d3-axis-1.0.0.tgz"
-    },
-    "d3-brush": {
-      "version": "1.0.1",
-      "from": "d3-brush@1.0.1",
-      "resolved": "https://registry.npmjs.org/d3-brush/-/d3-brush-1.0.1.tgz"
-    },
-    "d3-collection": {
-      "version": "1.0.0",
-      "from": "d3-collection@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-collection/-/d3-collection-1.0.0.tgz"
-    },
-    "d3-color": {
-      "version": "1.0.0",
-      "from": "d3-color@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-color/-/d3-color-1.0.0.tgz"
-    },
-    "d3-dispatch": {
-      "version": "1.0.0",
-      "from": "d3-dispatch@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-dispatch/-/d3-dispatch-1.0.0.tgz"
-    },
-    "d3-drag": {
-      "version": "1.0.0",
-      "from": "d3-drag@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-drag/-/d3-drag-1.0.0.tgz"
-    },
-    "d3-dsv": {
-      "version": "1.0.0",
-      "from": "d3-dsv@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-dsv/-/d3-dsv-1.0.0.tgz"
-    },
-    "d3-ease": {
-      "version": "1.0.0",
-      "from": "d3-ease@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-ease/-/d3-ease-1.0.0.tgz"
-    },
-    "d3-force": {
-      "version": "1.0.0",
-      "from": "d3-force@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-force/-/d3-force-1.0.0.tgz"
-    },
-    "d3-format": {
-      "version": "1.0.0",
-      "from": "d3-format@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-format/-/d3-format-1.0.0.tgz"
-    },
-    "d3-geo": {
-      "version": "1.0.0",
-      "from": "d3-geo@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-geo/-/d3-geo-1.0.0.tgz"
-    },
-    "d3-hierarchy": {
-      "version": "1.0.0",
-      "from": "d3-hierarchy@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-hierarchy/-/d3-hierarchy-1.0.0.tgz"
-    },
-    "d3-interpolate": {
-      "version": "1.0.0",
-      "from": "d3-interpolate@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-interpolate/-/d3-interpolate-1.0.0.tgz"
-    },
-    "d3-path": {
-      "version": "1.0.0",
-      "from": "d3-path@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-path/-/d3-path-1.0.0.tgz"
-    },
-    "d3-polygon": {
-      "version": "1.0.0",
-      "from": "d3-polygon@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-polygon/-/d3-polygon-1.0.0.tgz"
-    },
-    "d3-quadtree": {
-      "version": "1.0.0",
-      "from": "d3-quadtree@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-quadtree/-/d3-quadtree-1.0.0.tgz"
-    },
-    "d3-queue": {
-      "version": "3.0.1",
-      "from": "d3-queue@3.0.1",
-      "resolved": "https://registry.npmjs.org/d3-queue/-/d3-queue-3.0.1.tgz"
-    },
-    "d3-random": {
-      "version": "1.0.0",
-      "from": "d3-random@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-random/-/d3-random-1.0.0.tgz"
-    },
-    "d3-request": {
-      "version": "1.0.0",
-      "from": "d3-request@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-request/-/d3-request-1.0.0.tgz"
-    },
-    "d3-scale": {
-      "version": "1.0.0",
-      "from": "d3-scale@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-scale/-/d3-scale-1.0.0.tgz"
-    },
-    "d3-selection": {
-      "version": "1.0.0",
-      "from": "d3-selection@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-selection/-/d3-selection-1.0.0.tgz"
-    },
-    "d3-shape": {
-      "version": "1.0.0",
-      "from": "d3-shape@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-shape/-/d3-shape-1.0.0.tgz"
-    },
-    "d3-time": {
-      "version": "1.0.0",
-      "from": "d3-time@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-time/-/d3-time-1.0.0.tgz"
-    },
-    "d3-time-format": {
-      "version": "2.0.0",
-      "from": "d3-time-format@2.0.0",
-      "resolved": "https://registry.npmjs.org/d3-time-format/-/d3-time-format-2.0.0.tgz"
-    },
-    "d3-timer": {
-      "version": "1.0.0",
-      "from": "d3-timer@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-timer/-/d3-timer-1.0.0.tgz"
-    },
-    "d3-transition": {
-      "version": "1.0.0",
-      "from": "d3-transition@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-transition/-/d3-transition-1.0.0.tgz"
-    },
-    "d3-voronoi": {
-      "version": "1.0.0",
-      "from": "d3-voronoi@1.0.0",
-      "resolved": "https://registry.npmjs.org/d3-voronoi/-/d3-voronoi-1.0.0.tgz"
-    },
-    "d3-zoom": {
-      "version": "1.0.1",
-      "from": "d3-zoom@1.0.1",
-      "resolved": "https://registry.npmjs.org/d3-zoom/-/d3-zoom-1.0.1.tgz"
+      "version": "3.5.17",
+      "from": "d3@>=3.0.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/d3/-/d3-3.5.17.tgz"
     },
     "dashdash": {
       "version": "1.13.1",
@@ -4021,11 +3876,6 @@
       "from": "run-parallel@>=1.1.2 <2.0.0",
       "resolved": "https://registry.npmjs.org/run-parallel/-/run-parallel-1.1.6.tgz"
     },
-    "rw": {
-      "version": "1.3.2",
-      "from": "rw@>=1.0.0 <2.0.0",
-      "resolved": "https://registry.npmjs.org/rw/-/rw-1.3.2.tgz"
-    },
     "rx-lite": {
       "version": "3.1.2",
       "from": "rx-lite@>=3.1.2 <4.0.0",
@@ -4650,11 +4500,6 @@
       "version": "2.6.2",
       "from": "xmlbuilder@2.6.2",
       "resolved": "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-2.6.2.tgz"
-    },
-    "xmlhttprequest": {
-      "version": "1.8.0",
-      "from": "xmlhttprequest@>=1.0.0 <2.0.0",
-      "resolved": "https://registry.npmjs.org/xmlhttprequest/-/xmlhttprequest-1.8.0.tgz"
     },
     "xregexp": {
       "version": "3.1.1",

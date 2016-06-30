@@ -265,7 +265,6 @@ class RunnableClient {
         return this.getKnownUsersForOrg(orgInfo.id)
       })
   }
-
 }
 
 export default new RunnableClient()

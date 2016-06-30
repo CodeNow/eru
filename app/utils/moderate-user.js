@@ -1,4 +1,3 @@
-
 import cookie from 'react-cookie'
 
 function moderateUser (user, domain) {

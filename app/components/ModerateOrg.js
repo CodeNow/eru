@@ -61,6 +61,7 @@ export default Relay.createContainer(
           users(first: 1, orgName: $orgName) {
             edges {
               node {
+                githubID
                 githubAccessToken
                 githubUsername
               }

@@ -1,7 +1,8 @@
 import find from '101/find'
-import moderateUser from '../utils/moderate-user'
 import React from 'react'
 import Relay from 'react-relay'
+
+import moderateUser from '../utils/moderate-user'
 
 class ModerateUser extends React.Component {
   handleUserChange (e) {

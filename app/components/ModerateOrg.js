@@ -1,6 +1,7 @@
-import moderateUser from '../utils/moderate-user'
 import React from 'react'
 import Relay from 'react-relay'
+
+import moderateUser from '../utils/moderate-user'
 
 class ModerateOrg extends React.Component {
   constructor (...args) {

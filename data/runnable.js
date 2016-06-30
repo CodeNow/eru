@@ -231,7 +231,10 @@ class RunnableClient {
             }
           })
           .catch((err) => {
-            log.error({ err }, 'error when getting organization info')
+            log.error(
+              { err, args: { org: org.lowerName } },
+              'error when getting organization info'
+            )
             return {}
           })
       })

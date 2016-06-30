@@ -13,7 +13,7 @@ class ModerateUser extends React.Component {
   handleSubmit (e) {
     e.preventDefault()
     if (!this.state || !this.state.username) {
-      console.warn('No username was selected.')
+      console.error('No username was selected.')
       return
     }
     const username = this.state.username.trim()

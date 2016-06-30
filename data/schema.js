@@ -26,10 +26,14 @@ import AWS from './aws'
 import Runnable from './runnable'
 import Consul from './consul'
 
+import logger from '../lib/logger'
+const log = logger.child({ module: 'data/schema' })
+
 const { nodeInterface, nodeField } = nodeDefinitions(
   (globalId) => {
+    const _log = log.child({ method: 'nodeDefinitions' })
     const { type, id } = fromGlobalId(globalId)
-    console.warn('[type] node def', type, id)
+    _log.trace({ type, id }, 'node def parsing')
     if (type === 'Service') {
       return Consul.getService(id)
     } else if (type === 'Runnable') {
@@ -41,11 +45,12 @@ const { nodeInterface, nodeField } = nodeDefinitions(
     } else if (type === 'AutoScaleGroup') {
       return AWS.getASGByName(id)
     }
-    console.error('[type] node def failed', type, id)
+    _log.warn({ type, id }, 'node def failed')
     return null
   },
   (obj) => {
-    console.warn('[type] returning the type', JSON.stringify(obj))
+    const _log = log.child({ method: 'nodeDefinitions' })
+    _log.trace({ obj: JSON.stringify(obj) }, 'node type parsing')
     if (obj.name) {
       return serviceType
     } else if (obj.instanceId) {
@@ -59,7 +64,7 @@ const { nodeInterface, nodeField } = nodeDefinitions(
     } else if (obj.AutoScalingGroupName) {
       return asgType
     }
-    console.error('[type] failed to get the type', JSON.stringify(obj))
+    _log.error({ obj: JSON.stringify(obj) }, 'failed to get the type')
     return null
   }
 )

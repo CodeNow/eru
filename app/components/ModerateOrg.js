@@ -4,39 +4,29 @@ import Relay from 'react-relay'
 import moderateUser from '../utils/moderate-user'
 
 class ModerateOrg extends React.Component {
-  constructor (...args) {
-    super(...args)
-    this.state = {}
-  }
-
-  componentWillMount () {
-    this.props.relay.setVariables({
-      orgName: this.props.params.orgName
-    }, readyState => {
-      if (readyState.done || readyState.aborted) {
-        let users = this.props.runnable.users.edges.map((u) => (u.node))
-        this.setState({ users })
-      } else if (readyState.error) {
-        this.setState({ error: readyState.error })
+  componentDidMount () {
+    const {
+      runnable: {
+        domain,
+        users: { edges }
       }
-    })
-  }
-
-  componentDidUpdate () {
-    if (this.state.users) {
-      moderateUser(this.state.users[0], this.props.runnable.domain)
+    } = this.props
+    const users = edges.map((u) => (u.node))
+    // sanity check
+    if (users && Array.isArray(users) && users.length) {
+      moderateUser(users[0], domain)
     }
   }
 
   render () {
     const {
       runnable: {
-        userContentDomain
+        userContentDomain,
+        users
       },
       orgName
     } = this.props
-
-    if (this.state.users) {
+    if (users && Array.isArray(users.edges) && users.edges.length) {
       return (
         <div className='col-md-6'>
           <img
@@ -61,7 +51,7 @@ export default Relay.createContainer(
   ModerateOrg,
   {
     initialVariables: {
-      orgName: null
+      orgName: ''
     },
     fragments: {
       runnable: () => Relay.QL`

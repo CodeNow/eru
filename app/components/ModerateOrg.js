@@ -40,7 +40,6 @@ class ModerateOrg extends React.Component {
       return (
         <div className='col-md-6'>
           <h2>Invalid organization.</h2>
-          <p>{this.state.error ? this.state.error.message : ''}</p>
         </div>
       )
     }

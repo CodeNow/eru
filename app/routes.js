@@ -15,6 +15,9 @@ export default (
     path='/app'
     component={Eru}
     queries={EruHomeQuery}
+    render={({ props, routerProps }) => (
+      props ? <Eru {...props} /> : <Loading {...routerProps} />
+    )}
   >
     <IndexRoute
       component={Welcome}
@@ -42,7 +45,9 @@ export default (
       path='org/:orgName'
       component={ModerateOrg}
       queries={EruHomeQuery}
-      render={({ props }) => (props ? <ModerateOrg {...props} /> : <Loading />)}
+      render={({ props, routerProps }) => (
+        props ? <ModerateOrg {...props} /> : <Loading {...routerProps} />
+      )}
     />
   </Route>
 )

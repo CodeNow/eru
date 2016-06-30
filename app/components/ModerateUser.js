@@ -1,13 +1,10 @@
 import find from '101/find'
 import React from 'react'
 import Relay from 'react-relay'
-import cookie from 'react-cookie'
 
-class Moderate extends React.Component {
-  static propTypes = {
-    runnable: React.PropTypes.object.isRequired
-  }
+import moderateUser from '../utils/moderate-user'
 
+class ModerateUser extends React.Component {
   handleUserChange (e) {
     e.preventDefault()
     this.setState({ username: e.target.value })
@@ -15,46 +12,14 @@ class Moderate extends React.Component {
 
   handleSubmit (e) {
     e.preventDefault()
-    const { domain } = this.props.runnable
-    const users = this.props.runnable.users.edges.map((u) => (u.node))
     if (!this.state || !this.state.username) {
       console.warn('No username was selected.')
       return
     }
     const username = this.state.username.trim()
+    const users = this.props.runnable.users.edges.map((u) => (u.node))
     const user = find(users, (u) => (u.githubUsername === username))
-    const accessToken = user.githubAccessToken
-    const tokenString = document.cookie.split(';').filter((c) => (c.split('=')[0].indexOf('CSRF-TOKEN') > -1))[0].split('=').pop()
-    window.fetch(
-      `https://api.${domain}/auth/github/token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': tokenString
-        },
-        credentials: 'include',
-        body: JSON.stringify({ accessToken })
-      }
-    )
-      .then((res) => {
-        if (res.status === 200) {
-          cookie.save(
-            'isModerating',
-            user.githubID.toString(),
-            {
-              domain: '.' + domain,
-              path: '/'
-            }
-          )
-          window.location.assign(`https://${domain}/`)
-        } else {
-          throw new Error('Authentication Failed.')
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
+    moderateUser(user, this.props.runnable.domain)
   }
 
   handleOrgSelect (e) {
@@ -72,7 +37,10 @@ class Moderate extends React.Component {
       : []
     return (
       <div className='col-md-6'>
-        <img src={`https://blue.${userContentDomain}/pixel.gif`} style={{display: 'none'}} />
+        <img
+          src={`https://blue.${userContentDomain}/pixel.gif`}
+          style={{display: 'none'}}
+        />
         <h4>User Moderation</h4>
         <p>
           These two lists are compiled using the following logic:
@@ -144,7 +112,7 @@ class Moderate extends React.Component {
 }
 
 export default Relay.createContainer(
-  Moderate,
+  ModerateUser,
   {
     initialVariables: {
       pageSize: 1000000,

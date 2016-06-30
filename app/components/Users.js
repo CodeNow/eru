@@ -1,7 +1,7 @@
 import React from 'react'
 import Relay from 'react-relay'
 
-import Moderate from './Moderate'
+import ModerateUser from './ModerateUser'
 import Whitelist from './Whitelist'
 
 class Users extends React.Component {
@@ -12,7 +12,7 @@ class Users extends React.Component {
   render () {
     return (
       <div className='row'>
-        <Moderate runnable={this.props.runnable} />
+        <ModerateUser runnable={this.props.runnable} />
         <Whitelist runnable={this.props.runnable} />
       </div>
     )
@@ -25,7 +25,7 @@ export default Relay.createContainer(
     fragments: {
       runnable: () => Relay.QL`
         fragment on Runnable {
-          ${Moderate.getFragment('runnable')}
+          ${ModerateUser.getFragment('runnable')}
           ${Whitelist.getFragment('runnable')}
         }
       `

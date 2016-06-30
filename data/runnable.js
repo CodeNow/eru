@@ -255,6 +255,16 @@ class RunnableClient {
         })
       })
   }
+
+  getKnownUsersFromOrgName (orgName) {
+    const github = appClientFactory()
+    return Promise.fromCallback((cb) => {
+      github.orgs.get({ org: orgName }, cb)
+    })
+      .then((orgInfo) => {
+        return this.getKnownUsersForOrg(orgInfo.id)
+      })
+  }
 }
 
 export default new RunnableClient()

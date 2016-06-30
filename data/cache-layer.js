@@ -2,11 +2,12 @@ import loadenv from 'loadenv'
 loadenv({})
 
 import ES6Error from 'es6-error'
-import moment from 'moment'
 import immutable from 'immutable'
+import moment from 'moment'
 import Promise from 'bluebird'
 
 import { createRedisClient } from '../lib/models/redis'
+import logger from '../lib/logger'
 
 const DEFAULT_TTL = process.env.CACHE_DEFAULT_TTL_SECONDS
 
@@ -16,6 +17,7 @@ class CacheLayer {
   constructor () {
     this.CACHE_PREFIX = 'eruCache::'
     this.inflight = new immutable.Map()
+    this.log = logger.child({ module: 'data/cache-layer' })
   }
 
   connect () {
@@ -46,31 +48,36 @@ class CacheLayer {
   }
 
   runAgainstCache (key, promiseMethod) {
+    const log = this.log.child({
+      method: 'runAgainstCache',
+      args: { key }
+    })
+    log.info('running against the cache')
     return this._getKeyFromCache(key)
       .then((data) => {
         let dataPromise
         let refreshCache = false
         if (data) {
-          console.log('we got cached data!')
+          log.trace('we got cached data!')
           dataPromise = Promise.resolve(data)
           refreshCache = true
         } else {
-          console.log('we need to fetch data')
+          log.trace('we need to fetch data')
           // if we don't have an inflight request, we need one
           if (!this.inflight.has(key)) {
-            console.log('we need to create a request for the data')
+            log.trace('we need to create a request for the data')
             this.inflight = this.inflight.set(key, promiseMethod())
             refreshCache = true
           } else {
-            console.log('there is already a request inflight')
+            log.trace('there is already a request inflight')
           }
           dataPromise = this.inflight.get(key)
         }
         if (refreshCache) {
-          console.log('we are going to refresh the data in the background')
+          log.trace('we are going to refresh the data in the background')
           let refreshData = dataPromise
           if (!this.inflight.has(key)) {
-            console.log('we need to create a request for the background refresh')
+            log.trace('we need to create a request for the background refresh')
             this.inflight = this.inflight.set(key, promiseMethod())
             refreshData = this.inflight.get(key)
           }

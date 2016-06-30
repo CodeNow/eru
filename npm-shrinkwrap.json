@@ -866,7 +866,7 @@
     },
     "bunyan": {
       "version": "1.8.1",
-      "from": "bunyan@>=1.5.1 <2.0.0",
+      "from": "bunyan@latest",
       "resolved": "https://registry.npmjs.org/bunyan/-/bunyan-1.8.1.tgz"
     },
     "bytes": {
@@ -1592,6 +1592,11 @@
       "version": "5.3.1",
       "from": "eslint-config-standard@5.3.1",
       "resolved": "https://registry.npmjs.org/eslint-config-standard/-/eslint-config-standard-5.3.1.tgz"
+    },
+    "eslint-config-standard-jsx": {
+      "version": "1.2.1",
+      "from": "eslint-config-standard-jsx@1.2.1",
+      "resolved": "https://registry.npmjs.org/eslint-config-standard-jsx/-/eslint-config-standard-jsx-1.2.1.tgz"
     },
     "eslint-plugin-promise": {
       "version": "1.1.0",

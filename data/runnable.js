@@ -9,6 +9,7 @@ import {
   appClientFactory,
   tokenClientFactory
 } from './github'
+import logger from '../lib/logger'
 
 const MongoClient = Promise.promisifyAll(MongoDB.MongoClient)
 
@@ -50,6 +51,10 @@ class RunnableClient {
     this.DOMAIN = RUNNABLE_DOMAIN
     this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
     this.rabbitmq = new RabbitMQ({})
+    this.log = logger.child({
+      module: 'data/runnable',
+      model: 'RunnableClient'
+    })
   }
 
   connect () {
@@ -207,6 +212,7 @@ class RunnableClient {
   }
 
   getWhitelistedOrgs (queryUser) {
+    const log = this.log.child({ method: 'getWhitelistedOrgs' })
     const github = queryUser && queryUser.accessToken
       ? tokenClientFactory(queryUser.accessToken)
       : appClientFactory()
@@ -225,7 +231,7 @@ class RunnableClient {
             }
           })
           .catch((err) => {
-            console.error(err.stack || err.message)
+            log.error({ err }, 'error when getting organization info')
             return {}
           })
       })

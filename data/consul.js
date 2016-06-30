@@ -4,11 +4,19 @@ loadenv()
 import Promise from 'bluebird'
 import request from 'request'
 
+import logger from '../lib/logger'
+const log = logger.child({
+  module: 'data/consul',
+  model: 'consul'
+})
+
 const { CONSUL_HOST } = process.env
 const SERVICE_PREFIX = 'runnable/environment/'
 
 class Consul {
   static _makeRequest (url) {
+    const _log = log.child({ method: '_makeRequest' })
+    _log.trace({ url }, 'making a request')
     return Promise.fromCallback((cb) => {
       request.get(url, {}, cb)
     }, { multiArgs: true })
@@ -22,7 +30,8 @@ class Consul {
         }
       })
       .catch((err) => {
-        console.error(err.stack || err.message)
+        _log.error({ err }, 'error while making request')
+        throw err
       })
   }
 

@@ -8,15 +8,17 @@ import Github from 'github4'
 import Promise from 'bluebird'
 
 import cacheLayer from './cache-layer'
+import logger from '../lib/logger'
 
 const keypather = Keypather()
+const log = logger.child({ module: 'data/github' })
 
 export function tokenClientFactory (token) {
   if (!token) {
     const err = new Error(
       'oauth token is required when using token client factory'
     )
-    console.error(err.stack)
+    log.error({ err }, err.message)
     throw err
   }
   const github = new Github({
@@ -49,6 +51,7 @@ export function appClientFactory () {
 }
 
 function extendGithubWithCacheFunction (github, clientKey) {
+  const _log = log.child({ method: 'extendGithubWithCacheFunction' })
   github.clientKey = clientKey
   github.runThroughCache = Promise.method((method, options) => {
     const fn = keypather.get(github, method)
@@ -61,7 +64,7 @@ function extendGithubWithCacheFunction (github, clientKey) {
     const etagKey = `${github.clientKey}:${method}:::${optionsHash}`
     return cacheLayer._getKeyFromCache(etagKey)
       .catch(cacheLayer.CacheInvalidError, () => {
-        console.warn('data was not in the cache')
+        _log.trace('data was not in the cache')
       })
       .then((etag) => {
         if (!etag) {

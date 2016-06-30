@@ -12,6 +12,12 @@ import { appClientFactory, tokenClientFactory } from './github'
 import cacheLayer from './cache-layer'
 import promiseWhile from '../lib/utils/promise-while'
 import RabbitMQ from '../lib/models/rabbitmq'
+import logger from '../lib/logger'
+
+const log = logger.child({
+  module: 'data/aws',
+  model: 'AWSClass'
+})
 
 const {
   AWS_ACCESS_KEY,
@@ -82,6 +88,7 @@ class AWSClass {
   }
 
   static _getGithubOrgForASGs (groups, queryUser) {
+    const _log = log.child({ method: '_getGithubOrgForASGs' })
     const github = queryUser && queryUser.accessToken
       ? tokenClientFactory(queryUser.accessToken)
       : appClientFactory()
@@ -94,8 +101,7 @@ class AWSClass {
           }
         })
         .catch((err) => {
-          console.error(err.stack || err.message || err)
-          console.error(`looking for org ${g.org} and did not find it`)
+          _log.error({ err }, `looking for org ${g.org} and did not find it`)
           return g
         })
     })
@@ -224,6 +230,8 @@ class AWSClass {
   }
 
   static scaleInASGByName (name, desiredSize) {
+    const _log = log.child({ method: 'scaleInASGByName' })
+    _log('scaling in ASG by a name')
     return AWSClass.getASGByName(name)
       .then((asgToUpdate) => {
         if (asgToUpdate.Instances.length <= desiredSize) {
@@ -275,7 +283,7 @@ class AWSClass {
         })
       })
       .catch((err) => {
-        console.error(err.stack || err.message || err)
+        _log.error({ err }, 'error while scaling in an ASG')
         throw err
       })
   }

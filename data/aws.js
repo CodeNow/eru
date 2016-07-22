@@ -231,7 +231,7 @@ class AWSClass {
 
   static scaleInASGByName (name, desiredSize) {
     const _log = log.child({ method: 'scaleInASGByName' })
-    _log('scaling in ASG by a name')
+    _log.info('scaling in ASG by a name')
     return AWSClass.getASGByName(name)
       .then((asgToUpdate) => {
         if (asgToUpdate.Instances.length <= desiredSize) {

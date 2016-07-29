@@ -1,6 +1,6 @@
-const fs = require('fs')
-const path = require('path')
-const webpack = require('webpack')
+import fs from 'fs'
+import path from 'path'
+import webpack from 'webpack'
 
 // Serve the Relay app
 var compiler = webpack({
@@ -16,8 +16,11 @@ var compiler = webpack({
     loaders: [
       {
         loader: 'babel',
-        exclude: /node_modules/,
+        exclude: [/node_modules/, /test/],
         test: /\.js$/
+      }, {
+        loader: 'ignore-loader',
+        test: /test/
       }
     ]
   }

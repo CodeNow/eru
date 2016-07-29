@@ -28,6 +28,9 @@ var compiler = webpack({
         loader: 'babel',
         exclude: /node_modules/,
         test: /\.js$/
+      }, {
+        loader: 'ignore-loader',
+        test: /test/
       }
     ]
   }

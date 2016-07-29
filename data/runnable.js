@@ -5,6 +5,8 @@ import MongoDB from 'mongodb'
 import Promise from 'bluebird'
 import RabbitMQ from 'ponos/lib/rabbitmq'
 
+import BigPoppaClient from '@runnable/big-poppa-client'
+
 import {
   appClientFactory,
   tokenClientFactory
@@ -51,6 +53,7 @@ class RunnableClient {
     this.DOMAIN = RUNNABLE_DOMAIN
     this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
     this.rabbitmq = new RabbitMQ({})
+    this.bigPoppa = new BigPoppaClient()
     this.log = logger.child({
       module: 'data/runnable',
       model: 'RunnableClient'
@@ -80,21 +83,8 @@ class RunnableClient {
   }
 
   getUsers (id) {
-    const query = { ...USER_QUERY }
-    if (id) {
-      query._id = new MongoDB.ObjectID(id)
-    }
-    return Promise.fromCallback((cb) => {
-      const users = this.db.collection('users')
-      users
-        .find(query, USER_FIELDS)
-        .sort(USER_SORT)
-        .toArray(cb)
-    })
-    .then((users) => {
-      if (id) { return users[0] }
-      return users
-    })
+    const data = id ? { githubId: id } : null
+    return this.bigPoppa.getUser(data)
   }
 
   addOrgToWhitelist (orgName, allowed) {

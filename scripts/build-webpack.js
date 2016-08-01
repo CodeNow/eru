@@ -8,7 +8,7 @@ const compiler = webpack({
     loaders: [
       {
         loader: 'babel',
-        exclude: [/node_modules/, /test/],
+        exclude: /node_modules/,
         query: {
           plugins: [ path.resolve(__dirname, 'babel-relay-plugin') ]
         },

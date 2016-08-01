@@ -84,7 +84,7 @@ class RunnableClient {
 
   getUsers (id) {
     const data = id ? { githubId: id } : null
-    return this.bigPoppa.getUser(data)
+    return this.bigPoppa.getUsers(data)
   }
 
   addOrgToWhitelist (orgName, allowed) {
@@ -186,18 +186,9 @@ class RunnableClient {
 
   getWhitelistedOrgByID (id) {
     const intID = parseInt(id, 10)
-    const github = appClientFactory()
-    return github.runThroughCache('users.getById', { id })
-      .then((githubInfo) => {
-        const query = {
-          lowerName: githubInfo.login.toLowerCase(),
-          ...WHITELIST_QUERY
-        }
-        return Promise.fromCallback((cb) => {
-          this.db.collection('userwhitelists')
-            .findOne(query, WHITELIST_FIELDS, cb)
-        })
-      })
+
+    const data = id ? { githubId: id } : null
+    return this.bigPoppa.getOrganizations(data)
       .then((org) => ({ id: intID, ...org }))
   }
 

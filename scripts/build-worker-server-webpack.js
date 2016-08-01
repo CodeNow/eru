@@ -14,6 +14,10 @@ var compiler = webpack({
         return cb(null, `commonjs ${req}`)
       } else if (req === 'ponos/lib/rabbitmq') {
         return cb(null, `commonjs ${req}`)
+      } else if (req === 'cors') {
+        return cb(null, `commonjs ${req}`)
+      } else if (req === 'chai') {
+        return cb(null, `commonjs ${req}`)
       }
       return cb()
     }
@@ -28,9 +32,6 @@ var compiler = webpack({
         loader: 'babel',
         exclude: /node_modules/,
         test: /\.js$/
-      }, {
-        loader: 'ignore-loader',
-        test: /test/
       }
     ]
   }

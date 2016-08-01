@@ -13,9 +13,6 @@ const compiler = webpack({
           plugins: [ path.resolve(__dirname, 'babel-relay-plugin') ]
         },
         test: /\.js$/
-      }, {
-        loader: 'ignore-loader',
-        test: /test/
       }
     ]
   },

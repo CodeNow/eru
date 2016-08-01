@@ -53,7 +53,7 @@ class RunnableClient {
     this.DOMAIN = RUNNABLE_DOMAIN
     this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
     this.rabbitmq = new RabbitMQ({})
-    this.bigPoppa = new BigPoppaClient()
+    this.bigPoppa = new BigPoppaClient(process.env.BIG_POPPA_HOST)
     this.log = logger.child({
       module: 'data/runnable',
       model: 'RunnableClient'

@@ -92,7 +92,7 @@
     "react-router": "^2.5.1",
     "react-router-relay": "^0.13.3",
     "redis": "^2.6.2",
-    "request": "^2.72.0",
+    "request": "https://registry.npmjs.org/request/-/request-2.72.0.tgz",
     "webpack": "^1.13.1"
   },
   "devDependencies": {

@@ -171,7 +171,7 @@ class RunnableClient {
   getWhitelistedOrgs () {
     return this.bigPoppa.getOrganizations({})
       .then((orgs) => {
-        return orgs.filter((o) => (!!o && !!o.githubId))
+        console.log(JSON.stringify(orgs))
       })
   }
 

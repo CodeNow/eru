@@ -179,43 +179,13 @@ class RunnableClient {
       .then((org) => ({ id: intID, ...org }))
   }
 
-  getWhitelistedOrgs (queryUser) {
-    const log = this.log.child({ method: 'getWhitelistedOrgs' })
-    const github = queryUser && queryUser.accessToken
-      ? tokenClientFactory(queryUser.accessToken)
-      : appClientFactory()
-    return Promise.fromCallback((cb) => {
-      this.db.collection('userwhitelists')
-        .find(WHITELIST_QUERY, WHITELIST_FIELDS)
-        .sort(WHITELIST_SORT)
-        .toArray(cb)
-    })
-      .map((org) => {
-        return github.runThroughCache('orgs.get', { org: org.lowerName })
-          .then((info) => {
-            return {
-              id: info.id,
-              ...org
-            }
-          })
-          .catch((err) => {
-            log.error(
-              { err, args: { org: org.lowerName } },
-              'error when getting organization info'
-            )
-            return {}
-          })
-      })
-      .then((orgs) => {
-        return orgs.filter((o) => (!!o.id))
-      })
+  getWhitelistedOrgs () {
+    return this.bigPoppa.getOrganizations()
   }
 
   getKnownUsersForOrg (orgID) {
-    const data = orgID ? { githubId: orgID } : null
-    return this.bigPoppa.getOrganizations(data)
+    return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
-      .get('users')
   }
 
   getKnownUsersFromOrgName (orgName) {

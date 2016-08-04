@@ -170,9 +170,10 @@ class RunnableClient {
 
   getWhitelistedOrgs () {
     return this.bigPoppa.getOrganizations({})
-      .tap((orgs) => {
-        console.log(JSON.stringify(orgs))
+      .tap(orgs => {
+        console.log(JSON.stringify(orgs, null, 2))
       })
+      .map(org => ({ id: org.githubId, ...org }))
   }
 
   getKnownUsersForOrg (orgID) {

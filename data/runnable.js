@@ -170,7 +170,7 @@ class RunnableClient {
 
   getWhitelistedOrgs () {
     return this.bigPoppa.getOrganizations({})
-      .then((orgs) => {
+      .tap((orgs) => {
         console.log(JSON.stringify(orgs))
       })
   }

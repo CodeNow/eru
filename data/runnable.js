@@ -214,6 +214,8 @@ class RunnableClient {
   getKnownUsersForOrg (orgID) {
     const data = orgID ? { githubId: orgID } : null
     return this.bigPoppa.getOrganizations(data)
+      .get('0')
+      .get('users')
   }
 
   getKnownUsersFromOrgName (orgName) {

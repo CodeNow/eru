@@ -59,7 +59,7 @@ class RunnableClient {
   }
 
   getUsers (id) {
-    const data = id ? { githubId: id } : null
+    const data = id ? { githubId: id } : {}
     return this.bigPoppa.getUsers(data)
   }
 
@@ -163,13 +163,16 @@ class RunnableClient {
   getWhitelistedOrgByID (id) {
     const intID = parseInt(id, 10)
 
-    const data = id ? { githubId: id } : null
+    const data = id ? { githubId: id } : {}
     return this.bigPoppa.getOrganizations(data)
       .then((org) => ({ id: intID, ...org }))
   }
 
   getWhitelistedOrgs () {
-    return this.bigPoppa.getOrganizations()
+    return this.bigPoppa.getOrganizations({})
+      .then((orgs) => {
+        return orgs.filter((o) => (!!o && !!o.githubId))
+      })
   }
 
   getKnownUsersForOrg (orgID) {

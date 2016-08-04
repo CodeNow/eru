@@ -25,19 +25,6 @@ const {
   USER_CONTENT_DOMAIN
 } = process.env
 
-const USER_QUERY = {
-  'accounts.github.username': { $exists: true }
-}
-const USER_FIELDS = {
-  _id: 1,
-  'accounts.github.accessToken': 1,
-  'accounts.github.id': 1,
-  'accounts.github.username': 1
-}
-const USER_SORT = {
-  'accounts.github.username': 1
-}
-
 const WHITELIST_QUERY = {}
 const WHITELIST_FIELDS = {
   _id: 1,
@@ -225,25 +212,8 @@ class RunnableClient {
   }
 
   getKnownUsersForOrg (orgID) {
-    return Promise.fromCallback((cb) => {
-      this.db.collection('instances')
-        .find({ 'owner.github': orgID }, { createdBy: 1 })
-        .sort({ 'createdBy.username': 1 })
-        .toArray(cb)
-    })
-      .then((instanceCreators) => {
-        const userGithubIDs = instanceCreators.map((i) => (i.createdBy.github))
-        const query = {
-          'accounts.github.id': { $in: userGithubIDs },
-          ...USER_QUERY
-        }
-        return Promise.fromCallback((cb) => {
-          this.db.collection('users')
-            .find(query, USER_FIELDS)
-            .sort(USER_SORT)
-            .toArray(cb)
-        })
-      })
+    const data = orgID ? { githubId: orgID } : null
+    return this.bigPoppa.getOrganizations(data)
   }
 
   getKnownUsersFromOrgName (orgName) {

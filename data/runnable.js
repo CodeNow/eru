@@ -8,8 +8,7 @@ import RabbitMQ from 'ponos/lib/rabbitmq'
 import BigPoppaClient from '@runnable/big-poppa-client'
 
 import {
-  appClientFactory,
-  tokenClientFactory
+  appClientFactory
 } from './github'
 import logger from '../lib/logger'
 
@@ -24,16 +23,6 @@ const {
   RUNNABLE_DOMAIN,
   USER_CONTENT_DOMAIN
 } = process.env
-
-const WHITELIST_QUERY = {}
-const WHITELIST_FIELDS = {
-  _id: 1,
-  allowed: 1,
-  lowerName: 1
-}
-const WHITELIST_SORT = {
-  lowerName: 1
-}
 
 class RunnableClient {
   constructor () {

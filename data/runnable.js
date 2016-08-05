@@ -196,9 +196,21 @@ class RunnableClient {
   }
 
   getKnownUsersForOrg (orgID) {
+    console.log('getKnownUsersForOrg', orgId)
     return this.bigPoppa.getOrganizations({ githubId: orgID })
-      .get('0')
-      .get('users')
+      .then((org) => {
+        console.log(JSON.stringify(org, null, 2))
+        return Promise.map(org[0].users, (user) => {
+          return github.runThroughCache('users.getById', { id: user.githubId })
+            .then((info) => {
+              return {
+                id: info.id,
+                username: info.login,
+                ...user
+              }
+            })
+        })
+      })
   }
 
   getKnownUsersFromOrgName (orgName) {

@@ -196,7 +196,7 @@ class RunnableClient {
   }
 
   getKnownUsersForOrg (orgID) {
-    console.log('getKnownUsersForOrg', orgId)
+    console.log('getKnownUsersForOrg', orgID)
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .then((org) => {
         console.log(JSON.stringify(org, null, 2))

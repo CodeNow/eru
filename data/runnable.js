@@ -171,9 +171,9 @@ class RunnableClient {
   getWhitelistedOrgs () {
     const log = this.log.child({ method: 'getWhitelistedOrgs' })
     const github = appClientFactory()
-    return this.bigPoppa.getOrganizations({})
+    return this.bigPoppa.getOrganizations()
       .map((org) => {
-        return github.runThroughCache('orgs.get', { org: org.lowerName })
+        return github.runThroughCache('users.getById', { org: org.githubId })
           .then((info) => {
             return {
               id: info.id,

@@ -170,27 +170,33 @@ class RunnableClient {
 
   getWhitelistedOrgs () {
     return this.bigPoppa.getOrganizations({})
-      .map((orgInfo) => {
-        const github = appClientFactory()
-        return Promise.fromCallback((cb) => {
-          github.users.getById({id: orgInfo.githubId}, cb)
-        })
-          .then((org) => {
+      .map((org) => {
+        return github.runThroughCache('orgs.get', { org: org.lowerName })
+          .then((info) => {
             return {
-              id: org.githubId,
-              githubName: org.login,
-              ...orgInfo
+              id: info.id,
+              lowerName: info.login.toLowerCase(),
+              ...org
             }
           })
-          .tap(org => {
-            console.log(JSON.stringify(org, null, 2))
+          .catch((err) => {
+            log.error(
+              { err, args: { org: org.lowerName } },
+              'error when getting organization info'
+            )
+            return {}
           })
+      })
+      .then((orgs) => {
+        console.log(JSON.stringify(orgs, null, 2))
+        return orgs.filter((o) => (!!o.id))
       })
   }
 
   getKnownUsersForOrg (orgID) {
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
+      .get('users')
   }
 
   getKnownUsersFromOrgName (orgName) {

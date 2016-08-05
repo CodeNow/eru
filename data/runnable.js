@@ -209,7 +209,7 @@ class RunnableClient {
                 accounts: {
                   github: {
                     id: user.githubId,
-                    username: info.username,
+                    username: info.login,
                     accessToken: user.accessToken
                   }
                 }

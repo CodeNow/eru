@@ -197,6 +197,7 @@ class RunnableClient {
 
   getKnownUsersForOrg (orgID) {
     console.log('getKnownUsersForOrg', orgID)
+    const github = appClientFactory()
     return this.bigPoppa.getOrganization(orgID)
       .then((org) => {
         console.log(JSON.stringify(org, null, 2))

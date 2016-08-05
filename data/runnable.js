@@ -169,6 +169,7 @@ class RunnableClient {
   }
 
   getWhitelistedOrgs () {
+    const github = appClientFactory()
     return this.bigPoppa.getOrganizations({})
       .map((org) => {
         return github.runThroughCache('orgs.get', { org: org.lowerName })

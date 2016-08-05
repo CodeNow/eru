@@ -191,9 +191,9 @@ class RunnableClient {
         return github.runThroughCache('users.getById', { id: org.githubId })
           .then((info) => {
             return {
+              ...org,
               id: info.id,
-              lowerName: info.login.toLowerCase(),
-              ...org
+              lowerName: info.login.toLowerCase()
             }
           })
           .catch((err) => {
@@ -213,24 +213,23 @@ class RunnableClient {
   getKnownUsersForOrg (orgID) {
     console.log('getKnownUsersForOrg', orgID)
     const github = appClientFactory()
-    return this.bigPoppa.getOrganization(orgID)
-      .then((org) => {
-        console.log(JSON.stringify(org, null, 2))
-        return Promise.map(org.users, (user) => {
-          return github.runThroughCache('users.getById', { id: user.githubId })
-            .then((info) => {
-              return {
-                id: info.id,
-                accounts: {
-                  github: {
-                    id: user.githubId,
-                    username: info.login,
-                    accessToken: user.accessToken
-                  }
+    return this.bigPoppa.getOrganizations({ githubId: orgID })
+      .get('0')
+      .get('users')
+      .map(user => {
+        return github.runThroughCache('users.getById', { id: user.githubId })
+          .then((info) => {
+            return {
+              id: info.id,
+              accounts: {
+                github: {
+                  id: user.githubId,
+                  username: info.login,
+                  accessToken: user.accessToken
                 }
               }
-            })
-        })
+            }
+          })
       })
   }
 

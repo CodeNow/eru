@@ -173,7 +173,7 @@ class RunnableClient {
     const github = appClientFactory()
     return this.bigPoppa.getOrganizations()
       .map((org) => {
-        return github.runThroughCache('users.getById', { org: org.githubId })
+        return github.runThroughCache('users.getById', { id: org.githubId })
           .then((info) => {
             return {
               id: info.id,

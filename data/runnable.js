@@ -206,8 +206,13 @@ class RunnableClient {
             .then((info) => {
               return {
                 id: info.id,
-                username: info.login,
-                accessToken: user.accessToken
+                accounts: {
+                  github: {
+                    id: user.githubId,
+                    username: info.username,
+                    accessToken: user.accessToken
+                  }
+                }
               }
             })
         })

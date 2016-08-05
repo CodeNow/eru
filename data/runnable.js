@@ -220,7 +220,7 @@ class RunnableClient {
         return github.runThroughCache('users.getById', { id: user.githubId })
           .then((info) => {
             return {
-              id: info.id,
+              id: user.githubId,
               accounts: {
                 github: {
                   id: user.githubId,
@@ -229,6 +229,9 @@ class RunnableClient {
                 }
               }
             }
+          })
+          .tap(user => {
+            console.log(JSON.stringify(user, null, 2))
           })
       })
   }

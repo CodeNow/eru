@@ -169,6 +169,7 @@ class RunnableClient {
   }
 
   getWhitelistedOrgs () {
+    const log = this.log.child({ method: 'getWhitelistedOrgs' })
     const github = appClientFactory()
     return this.bigPoppa.getOrganizations({})
       .map((org) => {

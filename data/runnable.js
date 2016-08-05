@@ -170,10 +170,22 @@ class RunnableClient {
 
   getWhitelistedOrgs () {
     return this.bigPoppa.getOrganizations({})
-      .tap(orgs => {
-        console.log(JSON.stringify(orgs, null, 2))
+      .map((orgInfo) => {
+        const github = appClientFactory()
+        return Promise.fromCallback((cb) => {
+          github.users.getById({id: orgInfo.githubId}, cb)
+        })
+          .then((org) => {
+            return {
+              id: org.githubId,
+              githubName: org.login,
+              ...orgInfo
+            }
+          })
+          .tap(org => {
+            console.log(JSON.stringify(org, null, 2))
+          })
       })
-      .map(org => ({ id: org.githubId, ...org }))
   }
 
   getKnownUsersForOrg (orgID) {

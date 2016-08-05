@@ -61,6 +61,21 @@ class RunnableClient {
   getUsers (id) {
     const data = id ? { githubId: id } : {}
     return this.bigPoppa.getUsers(data)
+      .map(user => {
+        return github.runThroughCache('users.getById', { id: user.githubId })
+          .then((info) => {
+            return {
+              id: info.id,
+              accounts: {
+                github: {
+                  id: user.githubId,
+                  username: info.login,
+                  accessToken: user.accessToken
+                }
+              }
+            }
+          })
+      })
   }
 
   addOrgToWhitelist (orgName, allowed) {

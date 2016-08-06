@@ -58,24 +58,27 @@ class RunnableClient {
       })
   }
 
+  matchUserInGithub (user) {
+    const github = appClientFactory()
+    return github.runThroughCache('users.getById', { id: user.githubId })
+      .then((info) => {
+        return {
+          id: user.githubId,
+          accounts: {
+            github: {
+              id: user.githubId,
+              username: info.login,
+              accessToken: user.accessToken
+            }
+          }
+        }
+      })
+  }
+
   getUsers (id) {
     const data = id ? { githubId: id } : {}
     return this.bigPoppa.getUsers(data)
-      .map(user => {
-        return github.runThroughCache('users.getById', { id: user.githubId })
-          .then((info) => {
-            return {
-              id: info.id,
-              accounts: {
-                github: {
-                  id: user.githubId,
-                  username: info.login,
-                  accessToken: user.accessToken
-                }
-              }
-            }
-          })
-      })
+      .map(this.matchUserInGithub)
   }
 
   addOrgToWhitelist (orgName, allowed) {
@@ -205,35 +208,15 @@ class RunnableClient {
           })
       })
       .then((orgs) => {
-        console.log(JSON.stringify(orgs, null, 2))
         return orgs.filter((o) => (!!o.id))
       })
   }
 
   getKnownUsersForOrg (orgID) {
-    console.log('getKnownUsersForOrg', orgID)
-    const github = appClientFactory()
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
       .get('users')
-      .map(user => {
-        return github.runThroughCache('users.getById', { id: user.githubId })
-          .then((info) => {
-            return {
-              id: user.githubId,
-              accounts: {
-                github: {
-                  id: user.githubId,
-                  username: info.login,
-                  accessToken: user.accessToken
-                }
-              }
-            }
-          })
-          .tap(user => {
-            console.log(JSON.stringify(user, null, 2))
-          })
-      })
+      .map(this.matchUserInGithub)
   }
 
   getKnownUsersFromOrgName (orgName) {

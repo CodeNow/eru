@@ -109,7 +109,7 @@ const userType = new GraphQLObjectType({
   name: 'User',
   description: 'Users of Runnable.',
   fields: () => ({
-    id: globalIdField('User', (u) => (u._id)),
+    id: globalIdField('User', (u) => (u.id)),
     mongoID: {
       type: GraphQLString,
       resolve: (u) => (u._id)

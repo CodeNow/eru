@@ -5,9 +5,10 @@ import MongoDB from 'mongodb'
 import Promise from 'bluebird'
 import RabbitMQ from 'ponos/lib/rabbitmq'
 
+import BigPoppaClient from '@runnable/big-poppa-client'
+
 import {
-  appClientFactory,
-  tokenClientFactory
+  appClientFactory
 } from './github'
 import logger from '../lib/logger'
 
@@ -23,34 +24,12 @@ const {
   USER_CONTENT_DOMAIN
 } = process.env
 
-const USER_QUERY = {
-  'accounts.github.username': { $exists: true }
-}
-const USER_FIELDS = {
-  _id: 1,
-  'accounts.github.accessToken': 1,
-  'accounts.github.id': 1,
-  'accounts.github.username': 1
-}
-const USER_SORT = {
-  'accounts.github.username': 1
-}
-
-const WHITELIST_QUERY = {}
-const WHITELIST_FIELDS = {
-  _id: 1,
-  allowed: 1,
-  lowerName: 1
-}
-const WHITELIST_SORT = {
-  lowerName: 1
-}
-
 class RunnableClient {
   constructor () {
     this.DOMAIN = RUNNABLE_DOMAIN
     this.USER_CONTENT_DOMAIN = USER_CONTENT_DOMAIN
     this.rabbitmq = new RabbitMQ({})
+    this.bigPoppa = new BigPoppaClient(process.env.BIG_POPPA_HOST)
     this.log = logger.child({
       module: 'data/runnable',
       model: 'RunnableClient'
@@ -79,22 +58,27 @@ class RunnableClient {
       })
   }
 
+  matchUserInGithub (user) {
+    const github = appClientFactory()
+    return github.runThroughCache('users.getById', { id: user.githubId })
+      .then((info) => {
+        return {
+          id: user.githubId,
+          accounts: {
+            github: {
+              id: user.githubId,
+              username: info.login,
+              accessToken: user.accessToken
+            }
+          }
+        }
+      })
+  }
+
   getUsers (id) {
-    const query = { ...USER_QUERY }
-    if (id) {
-      query._id = new MongoDB.ObjectID(id)
-    }
-    return Promise.fromCallback((cb) => {
-      const users = this.db.collection('users')
-      users
-        .find(query, USER_FIELDS)
-        .sort(USER_SORT)
-        .toArray(cb)
-    })
-    .then((users) => {
-      if (id) { return users[0] }
-      return users
-    })
+    const data = id ? { githubId: id } : {}
+    return this.bigPoppa.getUsers(data)
+      .map(this.matchUserInGithub)
   }
 
   addOrgToWhitelist (orgName, allowed) {
@@ -196,38 +180,23 @@ class RunnableClient {
 
   getWhitelistedOrgByID (id) {
     const intID = parseInt(id, 10)
-    const github = appClientFactory()
-    return github.runThroughCache('users.getById', { id })
-      .then((githubInfo) => {
-        const query = {
-          lowerName: githubInfo.login.toLowerCase(),
-          ...WHITELIST_QUERY
-        }
-        return Promise.fromCallback((cb) => {
-          this.db.collection('userwhitelists')
-            .findOne(query, WHITELIST_FIELDS, cb)
-        })
-      })
+
+    const data = id ? { githubId: id } : {}
+    return this.bigPoppa.getOrganizations(data)
       .then((org) => ({ id: intID, ...org }))
   }
 
-  getWhitelistedOrgs (queryUser) {
+  getWhitelistedOrgs () {
     const log = this.log.child({ method: 'getWhitelistedOrgs' })
-    const github = queryUser && queryUser.accessToken
-      ? tokenClientFactory(queryUser.accessToken)
-      : appClientFactory()
-    return Promise.fromCallback((cb) => {
-      this.db.collection('userwhitelists')
-        .find(WHITELIST_QUERY, WHITELIST_FIELDS)
-        .sort(WHITELIST_SORT)
-        .toArray(cb)
-    })
+    const github = appClientFactory()
+    return this.bigPoppa.getOrganizations()
       .map((org) => {
-        return github.runThroughCache('orgs.get', { org: org.lowerName })
+        return github.runThroughCache('users.getById', { id: org.githubId })
           .then((info) => {
             return {
+              ...org,
               id: info.id,
-              ...org
+              lowerName: info.login.toLowerCase()
             }
           })
           .catch((err) => {
@@ -244,25 +213,10 @@ class RunnableClient {
   }
 
   getKnownUsersForOrg (orgID) {
-    return Promise.fromCallback((cb) => {
-      this.db.collection('instances')
-        .find({ 'owner.github': orgID }, { createdBy: 1 })
-        .sort({ 'createdBy.username': 1 })
-        .toArray(cb)
-    })
-      .then((instanceCreators) => {
-        const userGithubIDs = instanceCreators.map((i) => (i.createdBy.github))
-        const query = {
-          'accounts.github.id': { $in: userGithubIDs },
-          ...USER_QUERY
-        }
-        return Promise.fromCallback((cb) => {
-          this.db.collection('users')
-            .find(query, USER_FIELDS)
-            .sort(USER_SORT)
-            .toArray(cb)
-        })
-      })
+    return this.bigPoppa.getOrganizations({ githubId: orgID })
+      .get('0')
+      .get('users')
+      .map(this.matchUserInGithub)
   }
 
   getKnownUsersFromOrgName (orgName) {

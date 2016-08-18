@@ -14,12 +14,15 @@ var compiler = webpack({
         return cb(null, `commonjs ${req}`)
       } else if (req === 'ponos/lib/rabbitmq') {
         return cb(null, `commonjs ${req}`)
+      } else if (req === '@runnable/big-poppa-client') {
+        return cb(null, `commonjs ${req}`)
       }
       return cb()
     }
   ],
   node: {
     __filename: true,
+    console: true,
     __dirname: true
   },
   module: {

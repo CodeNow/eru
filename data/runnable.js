@@ -116,14 +116,29 @@ class RunnableClient {
       })
   }
 
+  /**
+   * Updates the isActive field in BigPoppa based off of the allowed input
+   *
+   * @param {String}  orgName - Org's name in Github
+   * @param {Boolean} allowed - setting to false will disable to the org's backend
+   *
+   * @resolves {Undefined}
+   * @throws   {Error}     when the org can't be located in BigPoppa
+   */
   updateOrgInWhitelist (orgName, allowed) {
     const lowerOrgName = orgName.toLowerCase()
-    const searchQuery = { lowerName: lowerOrgName }
-    const update = { $set: { allowed: !!allowed } }
-    return Promise.fromCallback((cb) => {
-      this.db.collection('userwhitelists')
-        .findOneAndUpdate(searchQuery, update, cb)
-    })
+    const searchQuery = { name: orgName }
+    const update = { isActive: !!allowed }
+    return this.bigPoppa.getOrganizations(searchQuery)
+      .get('0')
+      .tap(org => {
+        if (!org) {
+          throw new Error('Could not find org in bigPoppa', { searchQuery: searchQuery })
+        }
+      })
+      .then(org => {
+        return this.bigPoppa.updateOrganization(org.id, update)
+      })
       .then(() => {
         if (allowed) {
           return this.rabbitmq.publishToExchange(

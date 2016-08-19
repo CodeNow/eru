@@ -240,7 +240,7 @@ class RunnableClient {
       .get('0')
       .tap(org => {
         if (!org) {
-          throw new Error('Could not find org in bigPoppa', { searchQuery: searchQuery })
+          throw new Error('Could not find org in bigPoppa', { orgID: orgID })
         }
       })
       .get('users')

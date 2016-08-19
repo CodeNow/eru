@@ -78,7 +78,7 @@ class RunnableClient {
   getUsers (id) {
     const data = id ? { githubId: id } : {}
     return this.bigPoppa.getUsers(data)
-      .map(this.matchUserInGithub)
+      .mapSeries(this.matchUserInGithub)
   }
 
   addOrgToWhitelist (orgName, allowed) {
@@ -205,7 +205,7 @@ class RunnableClient {
     const log = this.log.child({ method: 'getWhitelistedOrgs' })
     const github = appClientFactory()
     return this.bigPoppa.getOrganizations()
-      .map((org) => {
+      .mapSeries((org) => {
         return github.runThroughCache('users.getById', { id: org.githubId })
           .then((info) => {
             return {
@@ -227,14 +227,27 @@ class RunnableClient {
       })
   }
 
+  /**
+   * Fetches all of the user models for an org
+   *
+   * @param {String} orgID - github Id for the org
+   *
+   * @resolves {[User]} all of the users for an org
+   * @throws   {Error}     when the org can't be located in BigPoppa
+   */
   getKnownUsersForOrg (orgID) {
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
+      .tap(org => {
+        if (!org) {
+          throw new Error('Could not find org in bigPoppa', { orgID: orgID })
+        }
+      })
       .get('users')
-      .map(user => {
+      .mapSeries(user => {
         return this.bigPoppa.getUser(user.id)
       })
-      .map(this.matchUserInGithub)
+      .mapSeries(this.matchUserInGithub)
   }
 
   getKnownUsersFromOrgName (orgName) {

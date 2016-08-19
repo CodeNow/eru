@@ -121,6 +121,7 @@ class RunnableClient {
     const searchQuery = { name: orgName }
     const update = { isActive: !!allowed }
     return this.bigPoppa.getOrganizations(searchQuery)
+      .get('0')
       .then(org => {
         return this.bigPoppa.updateOrganization(org.id, update)
       })

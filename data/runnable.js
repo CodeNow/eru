@@ -216,6 +216,9 @@ class RunnableClient {
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
       .get('users')
+      .map(user => {
+        return this.bigPoppa.getUser(user.id)
+      })
       .map(this.matchUserInGithub)
   }
 

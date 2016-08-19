@@ -118,12 +118,12 @@ class RunnableClient {
 
   updateOrgInWhitelist (orgName, allowed) {
     const lowerOrgName = orgName.toLowerCase()
-    const searchQuery = { lowerName: lowerOrgName }
-    const update = { $set: { allowed: !!allowed } }
-    return Promise.fromCallback((cb) => {
-      this.db.collection('userwhitelists')
-        .findOneAndUpdate(searchQuery, update, cb)
-    })
+    const searchQuery = { name: orgName }
+    const update = { isActive: !!allowed }
+    return this.bigPoppa.getOrganizations(searchQuery)
+      .then(org => {
+        return this.bigPoppa.updateOrganization(org.id, update)
+      })
       .then(() => {
         if (allowed) {
           return this.rabbitmq.publishToExchange(

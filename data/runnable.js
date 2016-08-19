@@ -227,9 +227,22 @@ class RunnableClient {
       })
   }
 
+  /**
+   * Fetches all of the user models for an org
+   *
+   * @param {String} orgID - github Id for the org
+   *
+   * @resolves {[User]} all of the users for an org
+   * @throws   {Error}     when the org can't be located in BigPoppa
+   */
   getKnownUsersForOrg (orgID) {
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
+      .tap(org => {
+        if (!org) {
+          throw new Error('Could not find org in bigPoppa', { searchQuery: searchQuery })
+        }
+      })
       .get('users')
       .mapSeries(user => {
         return this.bigPoppa.getUser(user.id)

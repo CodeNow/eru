@@ -78,7 +78,7 @@ class RunnableClient {
   getUsers (id) {
     const data = id ? { githubId: id } : {}
     return this.bigPoppa.getUsers(data)
-      .map(this.matchUserInGithub)
+      .mapSeries(this.matchUserInGithub)
   }
 
   addOrgToWhitelist (orgName, allowed) {
@@ -205,7 +205,7 @@ class RunnableClient {
     const log = this.log.child({ method: 'getWhitelistedOrgs' })
     const github = appClientFactory()
     return this.bigPoppa.getOrganizations()
-      .map((org) => {
+      .mapSeries((org) => {
         return github.runThroughCache('users.getById', { id: org.githubId })
           .then((info) => {
             return {
@@ -231,10 +231,10 @@ class RunnableClient {
     return this.bigPoppa.getOrganizations({ githubId: orgID })
       .get('0')
       .get('users')
-      .map(user => {
+      .mapSeries(user => {
         return this.bigPoppa.getUser(user.id)
       })
-      .map(this.matchUserInGithub)
+      .mapSeries(this.matchUserInGithub)
   }
 
   getKnownUsersFromOrgName (orgName) {

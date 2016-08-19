@@ -22,6 +22,8 @@ export function tokenClientFactory (token) {
     throw err
   }
   const github = new Github({
+    host: process.env.GITHUB_VARNISH_HOST,
+    port: process.env.GITHUB_VARNISH_PORT,
     headers: { 'user-agent': 'Runnable Eru User' }
   })
   github.authenticate({

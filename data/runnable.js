@@ -122,6 +122,11 @@ class RunnableClient {
     const update = { isActive: !!allowed }
     return this.bigPoppa.getOrganizations(searchQuery)
       .get('0')
+      .tap(org => {
+        if (!org) {
+          throw new Error('Could not find org in bigPoppa')
+        }
+      })
       .then(org => {
         return this.bigPoppa.updateOrganization(org.id, update)
       })

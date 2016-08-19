@@ -1,6 +1,6 @@
 {
   "name": "eru",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "description": "Administration panel for Runnable.io",
   "main": "index.js",
   "scripts": {

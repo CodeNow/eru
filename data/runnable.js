@@ -116,6 +116,15 @@ class RunnableClient {
       })
   }
 
+  /**
+   * Updates the isActive field in BigPoppa based off of the allowed input
+   *
+   * @param {String}  orgName - Org's name in Github
+   * @param {Boolean} allowed - setting to false will disable to the org's backend
+   *
+   * @resolves {Undefined}
+   * @throws   {Error}     when the org can't be located in BigPoppa
+   */
   updateOrgInWhitelist (orgName, allowed) {
     const lowerOrgName = orgName.toLowerCase()
     const searchQuery = { name: orgName }
@@ -124,7 +133,7 @@ class RunnableClient {
       .get('0')
       .tap(org => {
         if (!org) {
-          throw new Error('Could not find org in bigPoppa')
+          throw new Error('Could not find org in bigPoppa', { searchQuery: searchQuery })
         }
       })
       .then(org => {

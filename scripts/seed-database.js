@@ -92,7 +92,7 @@ function seed () {
     })
     .then(() => {
       console.log('seeding rabbitmq')
-      const requiredQueues = [ 'asg.create', 'on-dock-unhealthy' ]
+      const requiredQueues = [ 'asg.create' ]
       return Promise.each(requiredQueues, (q) => {
         const opts = {
           url: `http://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOSTNAME}:${RABBITMQ_PORT + 1}/api/queues/%2f/${q}`,

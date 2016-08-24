@@ -260,20 +260,19 @@ class AWSClass {
           .return({ asgToUpdate, removedInstanceIDs: instanceIDsToDetach })
       })
       .then(({ asgToUpdate, removedInstanceIDs }) => {
-        const orgID = asgToUpdate.AutoScalingGroupName.split('-').pop()
         return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
           return Promise.map(
             AWSClass.getInstances(removedInstanceIDs),
             (removedInstance) => {
               const job = {
-                githubID: orgID.toString(),
                 host: `http://${removedInstance.PrivateIpAddress}:4242`
               }
               return Promise.resolve(
-                rabbitMQ.channel.checkQueue('on-dock-unhealthy')
+                rabbitMQ.channel.assertExchange('dock.lost')
                   .then(() => (
-                    rabbitMQ.channel.sendToQueue(
-                      'on-dock-unhealthy',
+                    rabbitMQ.channel.publish(
+                      'dock.lost',
+                      '',
                       new Buffer(JSON.stringify(job))
                     )
                   ))

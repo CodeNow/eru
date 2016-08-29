@@ -127,7 +127,7 @@ class RunnableClient {
    */
   updateOrgInWhitelist (orgName, allowed) {
     const lowerOrgName = orgName.toLowerCase()
-    const searchQuery = { name: orgName }
+    const searchQuery = { lowerName: orgName }
     const update = { isActive: !!allowed }
     return this.bigPoppa.getOrganizations(searchQuery)
       .get('0')

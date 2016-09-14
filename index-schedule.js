@@ -10,7 +10,7 @@ syncRule.minute = [ 0, 15 ]
 
 schedule.scheduleJob(syncRule, () => {
   return Promise.using(getRabbitMQClient(), (rabbit) => (
-    rabbit.publishToQueue('eru.organizations.cleanup.removed', {})
+    rabbit.publishToQueue('eru.organizations.sync', {})
   ))
 })
 

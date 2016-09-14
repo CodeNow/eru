@@ -105,7 +105,7 @@ class RunnableClient {
           })
           .tap(() => (
             this.rabbitmq.publishToExchange(
-              'eru.whitelist.organization.added',
+              'whitelist.organization.added',
               '',
               {
                 organizationID: orgInfo.id,
@@ -142,13 +142,13 @@ class RunnableClient {
       .then(() => {
         if (allowed) {
           return this.rabbitmq.publishToExchange(
-            'eru.whitelist.organization.allowed',
+            'whitelist.organization.allowed',
             '',
             { organizationName: lowerOrgName }
           )
         } else {
           return this.rabbitmq.publishToExchange(
-            'eru.whitelist.organization.disallowed',
+            'whitelist.organization.disallowed',
             '',
             { organizationName: lowerOrgName }
           )
@@ -177,7 +177,7 @@ class RunnableClient {
           })
           .tap(() => (
             this.rabbitmq.publishToExchange(
-              'eru.whitelist.organization.removed',
+              'whitelist.organization.removed',
               '',
               { organizationName: orgInfo.login.toLowerCase() }
             )

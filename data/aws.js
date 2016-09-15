@@ -279,15 +279,32 @@ class AWSClass {
       })
   }
 
-  static createAWSASGCluster (githubID) {
+  static createAWSASGCluster (githubId) {
     // githubId must be a string
-    const job = { githubId: githubID.toString() }
+    const job = { githubId: githubId.toString() }
     return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
       return Promise.resolve(rabbitMQ.channel.checkQueue('asg.create'))
         .then(() => {
           return Promise.resolve(
             rabbitMQ.channel.sendToQueue(
               'asg.create',
+              new Buffer(JSON.stringify(job))
+            )
+          )
+        })
+        .delay(100)
+    })
+  }
+
+  static deleteASG (githubId) {
+    // githubId must be a string
+    const job = { githubId: githubId.toString() }
+    return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
+      return Promise.resolve(rabbitMQ.channel.checkQueue('asg.delete'))
+        .then(() => {
+          return Promise.resolve(
+            rabbitMQ.channel.sendToQueue(
+              'asg.delete',
               new Buffer(JSON.stringify(job))
             )
           )

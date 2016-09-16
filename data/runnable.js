@@ -159,7 +159,6 @@ class RunnableClient {
   resetOrgInBigPoppa (orgId) {
     const searchQuery = { githubId: orgId }
     const update = {
-      isActive: false,
       firstDockCreated: false
     }
     return this.bigPoppa.getOrganizations(searchQuery)

@@ -160,7 +160,7 @@ class RunnableClient {
     const searchQuery = { githubId: orgId }
     const update = {
       isActive: false,
-      firstDockCreated: true
+      firstDockCreated: false
     }
     return this.bigPoppa.getOrganizations(searchQuery)
       .get('0')

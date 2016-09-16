@@ -156,6 +156,24 @@ class RunnableClient {
       })
   }
 
+  resetOrgInBigPoppa (orgId) {
+    const searchQuery = { githubId: orgId }
+    const update = {
+      isActive: false,
+      firstDockCreated: true
+    }
+    return this.bigPoppa.getOrganizations(searchQuery)
+      .get('0')
+      .tap(org => {
+        if (!org) {
+          throw new Error('Could not find org in bigPoppa', { searchQuery: searchQuery })
+        }
+      })
+      .then(org => {
+        return this.bigPoppa.updateOrganization(org.id, update)
+      })
+  }
+
   removeOrgFromWhitelist (orgName) {
     const github = appClientFactory()
     return Promise.fromCallback((cb) => {

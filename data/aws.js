@@ -296,23 +296,6 @@ class AWSClass {
     })
   }
 
-  static deleteASG (githubId) {
-    // githubId must be a string
-    const job = { githubId: githubId.toString() }
-    return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
-      return Promise.resolve(rabbitMQ.channel.checkQueue('asg.delete'))
-        .then(() => {
-          return Promise.resolve(
-            rabbitMQ.channel.sendToQueue(
-              'asg.delete',
-              new Buffer(JSON.stringify(job))
-            )
-          )
-        })
-        .delay(100)
-    })
-  }
-
   static _getRabbitMQClient () {
     const rabbitMQ = new RabbitMQ()
     return Promise.resolve(

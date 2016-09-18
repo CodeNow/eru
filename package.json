@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "101": "^1.6.0",
-    "@runnable/big-poppa-client": "0.4.1",
+    "@runnable/big-poppa-client": "https://registry.npmjs.org/@runnable/big-poppa-client/-/big-poppa-client-0.4.1.tgz",
     "@runnable/orion": "^1.3.1",
     "amqplib": "^0.4.2",
     "aws-sdk": "^2.4.3",

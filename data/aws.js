@@ -110,7 +110,7 @@ class AWSClass {
       })
   }
 
-  static _formatAndSortASGs (groups, queryUser) {
+  static _formatASGs (groups, queryUser) {
     return Promise.try(() => {
       return groups.map((g) => ({
         org: find(g.Tags, (t) => (t.Key === 'org')).Value,
@@ -118,14 +118,6 @@ class AWSClass {
         ...g
       }))
     })
-      .then((groups) => (AWSClass._getGithubOrgForASGs(groups, queryUser)))
-      .then((groups) => {
-        return groups.sort((a, b) => {
-          if (a.githubOrganization < b.githubOrganization) { return -1 }
-          if (a.githubOrganization > b.githubOrganization) { return 1 }
-          return 0
-        })
-      })
   }
 
   static getASGNamesForEnvironment () {
@@ -191,7 +183,7 @@ class AWSClass {
           ))
           .then((data) => (data.asgs))
       })
-      .then((asgs) => (AWSClass._formatAndSortASGs(asgs, queryUser)))
+      .then((asgs) => (AWSClass._formatASGs(asgs, queryUser)))
   }
 
   static getASGByName (name) {
@@ -207,7 +199,7 @@ class AWSClass {
         }
         return asgs.AutoScalingGroups
       })
-      .then(AWSClass._formatAndSortASGs)
+      .then(AWSClass._formatASGs)
       .then((asgs) => (asgs.shift()))
   }
 
@@ -287,9 +279,9 @@ class AWSClass {
       })
   }
 
-  static createAWSASGCluster (githubID) {
+  static createAWSASGCluster (githubId) {
     // githubId must be a string
-    const job = { githubId: githubID.toString() }
+    const job = { githubId: githubId.toString() }
     return Promise.using(AWSClass._getRabbitMQClient(), (rabbitMQ) => {
       return Promise.resolve(rabbitMQ.channel.checkQueue('asg.create'))
         .then(() => {

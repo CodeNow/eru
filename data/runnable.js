@@ -126,7 +126,6 @@ class RunnableClient {
    * @throws   {Error}     when the org can't be located in BigPoppa
    */
   updateOrgInWhitelist (orgName, allowed) {
-    const lowerOrgName = orgName.toLowerCase()
     const searchQuery = { lowerName: orgName }
     const update = { isActive: !!allowed }
     return this.bigPoppa.getOrganizations(searchQuery)
@@ -139,20 +138,22 @@ class RunnableClient {
       .then(org => {
         return this.bigPoppa.updateOrganization(org.id, update)
       })
-      .then(() => {
-        if (allowed) {
-          return this.rabbitmq.publishToExchange(
-            'eru.whitelist.organization.allowed',
-            '',
-            { organizationName: lowerOrgName }
-          )
-        } else {
-          return this.rabbitmq.publishToExchange(
-            'eru.whitelist.organization.disallowed',
-            '',
-            { organizationName: lowerOrgName }
-          )
+  }
+
+  resetOrgInBigPoppa (orgId) {
+    const searchQuery = { githubId: orgId }
+    const update = {
+      firstDockCreated: false
+    }
+    return this.bigPoppa.getOrganizations(searchQuery)
+      .get('0')
+      .tap(org => {
+        if (!org) {
+          throw new Error('Could not find org in bigPoppa', { searchQuery: searchQuery })
         }
+      })
+      .then(org => {
+        return this.bigPoppa.updateOrganization(org.id, update)
       })
   }
 

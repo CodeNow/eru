@@ -5,12 +5,12 @@ import schedule from 'node-schedule'
 import RabbitMQ from 'ponos/lib/rabbitmq'
 import Promise from 'bluebird'
 
-const intercomSyncRule = new schedule.RecurrenceRule()
-intercomSyncRule.minute = [ 0, 30 ]
+const syncRule = new schedule.RecurrenceRule()
+syncRule.minute = [ 0, 15 ]
 
-schedule.scheduleJob(intercomSyncRule, () => {
+schedule.scheduleJob(syncRule, () => {
   return Promise.using(getRabbitMQClient(), (rabbit) => (
-    rabbit.publishToQueue('eru.intercom.companies.fetch', {})
+    rabbit.publishToQueue('eru.organizations.sync', {})
   ))
 })
 

@@ -31,7 +31,9 @@ class ModerateUser extends React.Component {
 
   render () {
     const userContentDomain = this.props.runnable.userContentDomain
-    const orgs = this.props.runnable.orgs.edges.map((e) => (e.node))
+    const orgs = this.props.runnable.orgs.edges
+      .map((e) => (e.node))
+      .sort((a, b) => a.githubName.toLowerCase() > b.githubName.toLowerCase())
     const users = this.props.runnable.users
       ? this.props.runnable.users.edges.map((u) => (u.node))
       : []

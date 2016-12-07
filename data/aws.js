@@ -183,6 +183,13 @@ class AWSClass {
           ))
           .then((data) => (data.asgs))
       })
+      .then((asgs) => {
+        return asgs.filter(function (asg) {
+          if (!find(asg.Tags, (t) => (t.Key === 'org'))) { return false }
+          if (!find(asg.Tags, (t) => (t.Key === 'env'))) { return false }
+          return true
+        })
+      })
       .then((asgs) => (AWSClass._formatASGs(asgs, queryUser)))
   }
 
